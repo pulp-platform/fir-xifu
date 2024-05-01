@@ -19,12 +19,14 @@ package fir_xifu_pkg;
   // inst[4:2]=110 [6:5]=10 [1:0]=11
   parameter logic [6:0] INSTR_OPCODE = 7'b1011011;
 
+  // R type
+  parameter logic [2:0] INSTR_XFIRDOTP_FUNCT3 = 3'b010;
+
   // I type
-  parameter logic [2:0] INSTR_LDTAP_FUNCT3 = 3'b000;
-  parameter logic [2:0] INSTR_LDSAM_FUNCT3 = 3'b001;
+  parameter logic [2:0] INSTR_XFIRLW_FUNCT3 = 3'b000;
 
   // S type
-  parameter logic [2:0] INSTR_STSAM_FUNCT3 = 3'b010;
+  parameter logic [2:0] INSTR_XFIRSW_FUNCT3 = 3'b001;
 
   function automatic logic [2:0] xifu_get_funct3(logic [31:0] in);
     logic [2:0] out;
@@ -69,23 +71,23 @@ package fir_xifu_pkg;
   endfunction
 
   typedef enum logic[1:0] {
-    INSTR_LDTAP : 2'b00,
-    INSTR_LDSAM : 2'b01,
-    INSTR_STSAM : 2'b11
+    INSTR_XFIRLW : 2'b00,
+    INSTR_XFIRSW : 2'b01,
+    INSTR_XFIRDOTP : 2'b10,
+    INSTR_INVALID : 2'b11
   } fir_xifu_instr_t;
     
   typedef struct {
     fir_xifu_instr_t instr;
     logic [31:0] base;
     logic [11:0] offset;
-    logic        store;
     logic [4:0]  rs1;
     logic [4:0]  rd;
   } fir_xifu_id2ex_t;
     
   typedef struct {
     fir_xifu_instr_t instr;
-    logic [31:0] next_addr;
+    logic [31:0] result;
     logic [4:0]  rs1;
     logic [4:0]  rd;
   } fir_xifu_ex2wb_t;
@@ -105,7 +107,9 @@ package fir_xifu_pkg;
   } fir_xifu_ex2ctrl_t;
 
   typedef struct {
-    logic [31:0] sample;
+    logic [31:0] op_a;
+    logic [31:0] op_b;
+    logic [31:0] op_c;
   } fir_xifu_ctrl2ex_t;
 
   typedef struct {

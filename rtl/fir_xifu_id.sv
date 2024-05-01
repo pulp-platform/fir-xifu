@@ -34,7 +34,7 @@ module fir_xifu_id
 
   // decode XIFU-supported instructions
   logic valid_instr;
-  logic store;
+  fir_xifu_instr_t instr;
 
   always_comb
   begin
@@ -43,31 +43,31 @@ module fir_xifu_id
     store = 1'b0;
     if(xif_issue_i.issue_valid & (xifu_get_opcode(xif_issue_i.issue_req.instr) == INSTR_OPCODE)) begin
       unique case(xifu_get_funct3(xif_issue_i.issue_req.instr))
-        INSTR_LDTAP_FUNCT3 : begin
+        INSTR_XFIRLW_FUNCT3 : begin
           xif_issue_i.issue_resp.accept = 1'b1;
           xif_issue_i.issue_resp.writeback = 1'b1;
           xif_issue_i.issue_resp.loadstore = 1'b1;
           valid_instr = 1'b1;
-          store = 1'b0;
+          instr = INSTR_XFIRLW;
         end
-        INSTR_LDSAM_FUNCT3 : begin
+        INSTR_XFIRSW_FUNCT3 : begin
           xif_issue_i.issue_resp.accept = 1'b1;
           xif_issue_i.issue_resp.writeback = 1'b1;
           xif_issue_i.issue_resp.loadstore = 1'b1;
           valid_instr = 1'b1;
-          store = 1'b0;
+          instr = INSTR_XFIRSW;
         end
-        INSTR_STSAM_FUNCT3 : begin
+        INSTR_XFIRDOTP_FUNCT3 : begin
           xif_issue_i.issue_resp.accept = 1'b1;
-          xif_issue_i.issue_resp.writeback = 1'b1;
-          xif_issue_i.issue_resp.loadstore = 1'b1;
+          xif_issue_i.issue_resp.writeback = 1'b0;
+          xif_issue_i.issue_resp.loadstore = 1'b0;
           valid_instr = 1'b1;
-          store = 1'b1;
+          instr = INSTR_XFIRDOTP;
         end
         default : begin
           xif_issue_i.issue_resp = '0;
           valid_instr = 1'b0;
-          store = 1'b0;
+          instr = INSTR_INVALID;
         end
       endcase
     end
@@ -86,7 +86,7 @@ module fir_xifu_id
     else begin
       id2ex_d.offset <= xifu_get_immediate_I(xif_issue_i.issue_req.instr);
     end
-    id2ex_d.store = store;
+    id2ex_d.instr = instr;
     id2ex_d.rs1 = xifu_get_rs1(xif_issue_req.instr);
     id2ex_d.rd  = xifu_get_rd(xif_issue_req.instr);
   end
