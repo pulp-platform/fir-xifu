@@ -86,6 +86,9 @@ module fir_xifu_id
     else begin
       id2ex_d.offset <= xifu_get_immediate_I(xif_issue_i.issue_req.instr);
     end
+    id2ex_d.store = store;
+    id2ex_d.rs1 = xifu_get_rs1(xif_issue_req.instr);
+    id2ex_d.rd  = xifu_get_rd(xif_issue_req.instr);
   end
   
   always_ff @(posedge clk_i, negedge rst_ni)
@@ -96,6 +99,15 @@ module fir_xifu_id
     else if (xif_issue_i.issue_valid & valid_instr) begin
       id2ex_o <= id2ex_d;
     end
+  end
+
+  // to CTRL / XIFU reg file
+  always_comb
+  begin
+    id2ctrl_o = '0;
+    id2ctrl_o.rs1 = xifu_get_rs1(xif_issue_req.instr);
+    id2ctrl_o.rs2 = xifu_get_rs2(xif_issue_req.instr);
+    id2ctrl_o.rd  = xifu_get_rd(xif_issue_req.instr);
   end
 
 endmodule /* fir_xifu_id */

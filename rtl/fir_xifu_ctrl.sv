@@ -17,8 +17,7 @@
 module fir_xifu_ctrl 
   import fir_xifu_pkg::*; 
 #(
-  parameter int unsigned NB_TAPS    = 4,
-  parameter int unsigned DATA_WIDTH = 16
+  parameter int unsigned NB_REGS = 4
 )
 (
   input  logic clk_i,
@@ -34,14 +33,13 @@ module fir_xifu_ctrl
 
   localparam int unsigned TAPS_PER_WORD = 32 / DATA_WIDTH;
   
-  logic [NB_TAPS-1:0][DATA_WIDTH-1:0] taps_buffer_d,   taps_buffer_q;
-  logic [NB_TAPS-1:0][DATA_WIDTH-1:0] sample_buffer_d, sample_buffer_q;
+  logic [NB_REGS-1:0][31:0] regs_d, regs_q;
 
   // EX/WB pipe stage
   always_ff @(posedge clk_i, negedge rst_ni)
   begin
     if(~rst_ni) begin
-      ex2wb_o <= '0;
+      regs_q <= '0;
     end
     else if (xif_issue_i.issue_valid) begin
       ex2wb_o.next_addr <= next_addr;

@@ -56,6 +56,18 @@ package fir_xifu_pkg;
     return out;
   endfunction
 
+  function automatic logic [4:0] xifu_get_rs2(logic [31:0] in);
+    logic [4:0] out;
+    out = in[24:20];
+    return out;
+  endfunction
+
+  function automatic logic [4:0] xifu_get_rd(logic [31:0] in);
+    logic [4:0] out;
+    out = in[11:7];
+    return out;
+  endfunction
+
   typedef enum logic[1:0] {
     INSTR_LDTAP : 2'b00,
     INSTR_LDSAM : 2'b01,
@@ -67,17 +79,21 @@ package fir_xifu_pkg;
     logic [31:0] base;
     logic [11:0] offset;
     logic        store;
-    logic [4:0]  register;
+    logic [4:0]  rs1;
+    logic [4:0]  rd;
   } fir_xifu_id2ex_t;
     
   typedef struct {
     fir_xifu_instr_t instr;
     logic [31:0] next_addr;
-    logic [4:0]  register;
+    logic [4:0]  rs1;
+    logic [4:0]  rd;
   } fir_xifu_ex2wb_t;
 
   typedef struct {
-    logic placeholder
+    logic [4:0]  rs1;
+    logic [4:0]  rs2;
+    logic [4:0]  rd;
   } fir_xifu_id2ctrl_t;
 
   typedef struct {

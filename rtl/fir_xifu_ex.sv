@@ -61,7 +61,8 @@ module fir_xifu_ex
     end
     else if (xif_issue_i.issue_valid) begin
       ex2wb_o.next_addr <= next_addr;
-      ex2wb_o.register  <= id2ex_i.register;
+      ex2wb_o.rs1  <= id2ex_i.rs1;
+      ex2wb_o.rd   <= id2ex_i.rd;
     end
   end
 

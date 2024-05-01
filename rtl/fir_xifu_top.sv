@@ -17,6 +17,9 @@
 module fir_xifu_top
   import cv32e40x_pkg::*;
   import fir_xifu_pkg::*;
+#(
+  parameter int unsigned NB_REGS = 4
+)
 (
   input logic                       clk_i,
   input logic                       rst_ni,

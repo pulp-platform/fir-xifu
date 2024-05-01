@@ -44,7 +44,7 @@ module fir_xifu_wb
     xif_result_o.result = '0;
     xif_result_o.result.id    = xif_mem_result_i.mem_result.id;
     xif_result_o.result.data  = ex2wb_i.next_addr;
-    xif_result_o.result.rd    = ex2wb_i.register;
+    xif_result_o.result.rd    = ex2wb_i.rs1; // autoincrement! FIXME: for arithmetic operations, this does not work
     xif_result_o.result.we    = ex2wb_i.instr == INSTR_STSAM ? 1'b1 : 1'b0;
   end
 
