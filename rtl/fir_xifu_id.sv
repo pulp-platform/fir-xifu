@@ -21,7 +21,7 @@ module fir_xifu_id
   input  logic clk_i,
   input  logic rst_ni,
 
-  cv32e40x_if_xif.coproc_compressed xif_compressed_i,
+  cv32e40x_if_xif.coproc_issue xif_issue_i,
   
   output fir_xifu_id2ex_t   id2ex_o,
 
@@ -30,41 +30,71 @@ module fir_xifu_id
 );
 
   // the XIFU is always ready to accept instructions
-  assign xif_compressed_i.compressed_ready = 1'b1;
+  assign xif_issue_i.issue_ready = 1'b1;
 
   // decode XIFU-supported instructions
+  logic valid_instr;
+  logic store;
+
   always_comb
   begin
-    // if(xif_compressed_i.compressed_valid) begin
-    //   unique case(xif_compressed_i.compressed_req.instr)
-    //     COMPR_INSTR_LDTAP : begin
-    //       xif_compressed_i.compressed_resp.accept = 1'b1;
-    //       xif_compressed_i.compressed_resp.instr  = INSTR_LDTAP;
-    //     end
-    //     COMPR_INSTR_LDSAM : begin
-    //       xif_compressed_i.compressed_resp.accept = 1'b1;
-    //       xif_compressed_i.compressed_resp.instr  = INSTR_LDSAM;
-    //     end
-    //     COMPR_INSTR_STSAM : begin
-    //       xif_compressed_i.compressed_resp.accept = 1'b1;
-    //       xif_compressed_i.compressed_resp.instr  = INSTR_STSAM;
-    //     end
-    //     default : begin
-          xif_compressed_i.compressed_resp.accept = '0;
-          xif_compressed_i.compressed_resp.instr  = '0;
-    //     end
-    //   endcase
-    // end
+    xif_issue_i.issue_resp = '0;
+    valid_instr = 1'b0;
+    store = 1'b0;
+    if(xif_issue_i.issue_valid & (xifu_get_opcode(xif_issue_i.issue_req.instr) == INSTR_OPCODE)) begin
+      unique case(xifu_get_funct3(xif_issue_i.issue_req.instr))
+        INSTR_LDTAP_FUNCT3 : begin
+          xif_issue_i.issue_resp.accept = 1'b1;
+          xif_issue_i.issue_resp.writeback = 1'b1;
+          xif_issue_i.issue_resp.loadstore = 1'b1;
+          valid_instr = 1'b1;
+          store = 1'b0;
+        end
+        INSTR_LDSAM_FUNCT3 : begin
+          xif_issue_i.issue_resp.accept = 1'b1;
+          xif_issue_i.issue_resp.writeback = 1'b1;
+          xif_issue_i.issue_resp.loadstore = 1'b1;
+          valid_instr = 1'b1;
+          store = 1'b0;
+        end
+        INSTR_STSAM_FUNCT3 : begin
+          xif_issue_i.issue_resp.accept = 1'b1;
+          xif_issue_i.issue_resp.writeback = 1'b1;
+          xif_issue_i.issue_resp.loadstore = 1'b1;
+          valid_instr = 1'b1;
+          store = 1'b1;
+        end
+        default : begin
+          xif_issue_i.issue_resp = '0;
+          valid_instr = 1'b0;
+          store = 1'b0;
+        end
+      endcase
+    end
   end
 
-  // ID/EX pipe stage (placeholder)
+  // ID/EX pipe stage
+  fir_xifu_id2ex_t id2ex_d;
+
+  always_comb
+  begin
+    id2ex_d = '0;
+    id2ex_d.base = xif_issue_i.issue_req.rs[0];
+    if(store) begin
+      id2ex_d.offset <= xifu_get_immediate_S(xif_issue_i.issue_req.instr);
+    end
+    else begin
+      id2ex_d.offset <= xifu_get_immediate_I(xif_issue_i.issue_req.instr);
+    end
+  end
+  
   always_ff @(posedge clk_i, negedge rst_ni)
   begin
     if(~rst_ni) begin
       id2ex_o <= '0;
     end
-    else if (xif_compressed_i.compressed_valid) begin
-      id2ex_o <= '0;
+    else if (xif_issue_i.issue_valid & valid_instr) begin
+      id2ex_o <= id2ex_d;
     end
   end
 

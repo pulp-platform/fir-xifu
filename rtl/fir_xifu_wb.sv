@@ -37,7 +37,7 @@ module fir_xifu_wb
   assign wb2ctrl_o.instr  = ex2wb_i.instr;
   assign wb2ctrl_o.valid  = xif_mem_result_i.mem_result_valid;
 
-  // wait on Result Ready? not necessary i think...
+  // update base address
   always_comb
   begin
     xif_result_o.result_valid = xif_mem_result_i.mem_result_valid;

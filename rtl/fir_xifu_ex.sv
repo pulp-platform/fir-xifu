@@ -32,55 +32,12 @@ module fir_xifu_ex
   input  fir_xifu_ctrl2ex_t ctrl2ex_i
 );
 
-  // the XIFU is always ready to accept instructions
-  assign xif_issue_i.issue_ready = 1'b1;
-
-  // decode XIFU-supported instructions
-  logic valid_instr;
-  logic store;
-
-  always_comb
-  begin
-    xif_issue_i.issue_resp = '0;
-    valid_instr = 1'b0;
-    store = 1'b0;
-    if(xif_issue_i.issue_valid & (xifu_get_opcode(xif_issue_i.issue_req.instr) == INSTR_OPCODE)) begin
-      unique case(xifu_get_funct3(xif_issue_i.issue_req.instr))
-        INSTR_LDTAP_FUNCT3 : begin
-          xif_issue_i.issue_resp.accept = 1'b1;
-          xif_issue_i.issue_resp.writeback = 1'b1;
-          xif_issue_i.issue_resp.loadstore = 1'b1;
-          valid_instr = 1'b1;
-          store = 1'b0;
-        end
-        INSTR_LDSAM_FUNCT3 : begin
-          xif_issue_i.issue_resp.accept = 1'b1;
-          xif_issue_i.issue_resp.writeback = 1'b1;
-          xif_issue_i.issue_resp.loadstore = 1'b1;
-          valid_instr = 1'b1;
-          store = 1'b0;
-        end
-        INSTR_STSAM_FUNCT3 : begin
-          xif_issue_i.issue_resp.accept = 1'b1;
-          xif_issue_i.issue_resp.writeback = 1'b1;
-          xif_issue_i.issue_resp.loadstore = 1'b1;
-          valid_instr = 1'b1;
-          store = 1'b1;
-        end
-        default : begin
-          xif_issue_i.issue_resp = '0;
-          valid_instr = 1'b0;
-          store = 1'b0;
-        end
-      endcase
-    end
-  end
-
   // compute address for next iteration
-  logic [31:0] next_addr; 
-  assign next_addr = xif_issue_i.issue_req.rs[0] + 32'h4;
+  logic [31:0] next_addr, curr_addr; 
+  assign curr_addr = id2ex_i.base + signed'(id2ex_i.offset + 32'sh0);
+  assign next_addr = curr_addr + 32'h4;
   
-  // 
+  // issue memory transaction (load or store)
   always_comb
   begin
     xif_mem_o.mem_req   = '0;
@@ -88,7 +45,7 @@ module fir_xifu_ex
     if(valid_instr) begin
       xif_mem_o.mem_req.id    = xif_issue_i.issue_req.id;
       xif_mem_o.mem_req.addr  = xif_issue_i.issue_req.rs[0];
-      xif_mem_o.mem_req.we    = store;
+      xif_mem_o.mem_req.we    = id2ex_i.store;
       xif_mem_o.mem_req.size  = 3'b100;
       xif_mem_o.mem_req.be    = 4'b1111;
       xif_mem_o.mem_req.wdata = ctrl2ex.sample;
@@ -104,7 +61,7 @@ module fir_xifu_ex
     end
     else if (xif_issue_i.issue_valid) begin
       ex2wb_o.next_addr <= next_addr;
-      ex2wb_o.register  <= xifu_get_rs1(xif_issue_i.instr);
+      ex2wb_o.register  <= id2ex_i.register;
     end
   end
 

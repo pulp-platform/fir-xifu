@@ -36,20 +36,23 @@ module fir_xifu_top
   fir_xifu_wb2ctrl_t wb2ctrl;
   fir_xifu_ctrl2wb_t ctrl2wb;
 
+  // CV32E40X does not currently support compressed XIF instructions
+  assign xif_compressed_i.compressed_ready = 1'b1;
+  assign xif_compressed_i.compressed_resp  = '0;
+
   fir_xifu_id i_id (
-    .clk_i            ( clk_i            ),
-    .rst_ni           ( rst_ni           ),
-    .xif_compressed_i ( xif_compressed_i ),
-    .id2ex_o          ( id2ex            ),
-    .id2ctrl_o        ( id2ctrl          ),
-    .ctrl2id_i        ( ctrl2id          )
+    .clk_i            ( clk_i        ),
+    .rst_ni           ( rst_ni       ),
+    .xif_issue_i      ( xif_issue_i  ),
+    .xif_commit_i     ( xif_commit_i ),
+    .id2ex_o          ( id2ex        ),
+    .id2ctrl_o        ( id2ctrl      ),
+    .ctrl2id_i        ( ctrl2id      )
   )
 
   fir_xifu_ex i_ex (
     .clk_i            ( clk_i        ),
     .rst_ni           ( rst_ni       ),
-    .xif_issue_i      ( xif_issue_i  ),
-    .xif_commit_i     ( xif_commit_i ),
     .xif_mem_o        ( xif_mem_o    ),
     .id2ex_i          ( id2ex        ),
     .ex2wb_o          ( ex2wb        ),

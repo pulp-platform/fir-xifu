@@ -64,6 +64,10 @@ package fir_xifu_pkg;
     
   typedef struct {
     fir_xifu_instr_t instr;
+    logic [31:0] base;
+    logic [11:0] offset;
+    logic        store;
+    logic [4:0]  register;
   } fir_xifu_id2ex_t;
     
   typedef struct {
