@@ -1,0 +1,25 @@
+package:
+  name: fir-xifu
+  authors:
+    - "Francesco Conti <f.conti@unibo.it>"
+
+dependencies:
+  cv32e40x:    { git: "git@github.com:pulp-platform/cv32e40x.git", rev: baba1eeb3b845306c45be714f677ff786753f136 }
+
+sources:
+  - include_dirs:
+      - rtl
+    files:
+      # Source files grouped in levels. Files in level 0 have no dependencies on files in this
+      # package. Files in level 1 only depend on files in level 0, files in level 2 on files in
+      # levels 1 and 0, etc. Files within a level are ordered alphabetically.
+      # Level 0
+      - rtl/fir_xifu_pkg.sv
+      # Level 1
+      - rtl/fir_xifu_id.sv
+      - rtl/fir_xifu_ex.sv
+      - rtl/fir_xifu_wb.sv
+      - rtl/fir_xifu_regfile.sv
+      # Level 2
+      - rtl/fir_xifu_top.sv
+
