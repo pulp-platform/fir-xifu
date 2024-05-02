@@ -48,9 +48,7 @@ module fir_xifu_top
     .rst_ni           ( rst_ni       ),
     .xif_issue_i      ( xif_issue_i  ),
     .xif_commit_i     ( xif_commit_i ),
-    .id2ex_o          ( id2ex        ),
-    .id2regfile_o     ( id2regfile   ),
-    .regfile2id_i     ( regfile2id   )
+    .id2ex_o          ( id2ex        )
   )
 
   fir_xifu_ex i_ex (
@@ -69,19 +67,15 @@ module fir_xifu_top
     .xif_mem_result_i ( xif_mem_result_i ),
     .xif_result_o     ( xif_result_o     ),
     .ex2wb_i          ( ex2wb            ),
-    .wb2regfile_o     ( wb2regfile       ),
-    .regfile2wb_i     ( regfile2wb       )
+    .wb2regfile_o     ( wb2regfile       )
   )
   
   fir_xifu_regfile i_regfile (
     .clk_i            ( clk_i      ),
     .rst_ni           ( rst_ni     ),
-    .id2regfile_i     ( id2regfile ),
-    .regfile2id_o     ( regfile2id ),
     .ex2regfile_i     ( ex2regfile ),
     .regfile2ex_o     ( regfile2ex ),
-    .wb2regfile_i     ( wb2regfile ),
-    .regfile2wb_o     ( regfile2wb )
+    .wb2regfile_i     ( wb2regfile )
   )
   
 endmodule /* fir_xifu_top */

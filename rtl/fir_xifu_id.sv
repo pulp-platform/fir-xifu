@@ -23,10 +23,7 @@ module fir_xifu_id
 
   cv32e40x_if_xif.coproc_issue xif_issue_i,
   
-  output fir_xifu_id2ex_t   id2ex_o,
-
-  output fir_xifu_id2regfile_t id2regfile_o,
-  input  fir_xifu_regfile2id_t regfile2id_i
+  output fir_xifu_id2ex_t   id2ex_o
 );
 
   // the XIFU is always ready to accept instructions
@@ -100,12 +97,6 @@ module fir_xifu_id
     else if (xif_issue_i.issue_valid & valid_instr) begin
       id2ex_o <= id2ex_d;
     end
-  end
-
-  // to regfile / XIFU reg file
-  always_comb
-  begin
-    id2regfile_o = '0;
   end
 
 endmodule /* fir_xifu_id */

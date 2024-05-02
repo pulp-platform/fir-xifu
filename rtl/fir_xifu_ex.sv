@@ -48,7 +48,7 @@ module fir_xifu_ex
       xif_mem_o.mem_req.we    = id2ex_i.instr == INSTR_XFIRSW;
       xif_mem_o.mem_req.size  = 3'b100;
       xif_mem_o.mem_req.be    = 4'b1111;
-      xif_mem_o.mem_req.wdata = regfile2ex.sample;
+      xif_mem_o.mem_req.wdata = regfile2ex_i.op_b;
       xif_mem_o.mem_req.last  = 1'b1;
     end
   end

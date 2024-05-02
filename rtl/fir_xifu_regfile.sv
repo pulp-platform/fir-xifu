@@ -23,12 +23,9 @@ module fir_xifu_regfile
   input  logic clk_i,
   input  logic rst_ni,
 
-  input  fir_xifu_id2regfile_t id2regfile_i,
-  output fir_xifu_regfile2id_t regfile2id_o,
   input  fir_xifu_ex2regfile_t ex2regfile_i,
   output fir_xifu_regfile2ex_t regfile2ex_o,
-  input  fir_xifu_wb2regfile_t wb2regfile_i,
-  output fir_xifu_regfile2wb_t regfile2wb_o
+  input  fir_xifu_wb2regfile_t wb2regfile_i
 );
   
   logic [NB_REGS-1:0][31:0] regs_q;

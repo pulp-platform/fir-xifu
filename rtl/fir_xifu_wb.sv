@@ -26,8 +26,7 @@ module fir_xifu_wb
   
   input  fir_xifu_ex2wb_t   ex2wb_i,
 
-  output fir_xifu_wb2regfile_t wb2regfile_o,
-  input  fir_xifu_regfile2wb_t regfile2wb_i
+  output fir_xifu_wb2regfile_t wb2regfile_o
 );
 
   logic [31:0] rdata;
