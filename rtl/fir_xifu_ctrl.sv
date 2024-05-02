@@ -1,5 +1,5 @@
 /*
- * fir_xifu_ctrl.sv
+ * fir_xifu_regfile.sv
  * Francesco Conti <f.conti@unibo.it>
  *
  * Copyright (C) 2024 ETH Zurich, University of Bologna
@@ -14,7 +14,7 @@
  *
  */
 
-module fir_xifu_ctrl 
+module fir_xifu_regfile 
   import fir_xifu_pkg::*; 
 #(
   parameter int unsigned NB_REGS = 4
@@ -23,40 +23,38 @@ module fir_xifu_ctrl
   input  logic clk_i,
   input  logic rst_ni,
 
-  input  fir_xifu_id2ctrl_t id2ctrl_i,
-  output fir_xifu_ctrl2id_t ctrl2id_o,
-  input  fir_xifu_ex2ctrl_t ex2ctrl_i,
-  output fir_xifu_ctrl2ex_t ctrl2ex_o,
-  input  fir_xifu_wb2ctrl_t wb2ctrl_i,
-  output fir_xifu_ctrl2wb_t ctrl2wb_o
+  input  fir_xifu_id2regfile_t id2regfile_i,
+  output fir_xifu_regfile2id_t regfile2id_o,
+  input  fir_xifu_ex2regfile_t ex2regfile_i,
+  output fir_xifu_regfile2ex_t regfile2ex_o,
+  input  fir_xifu_wb2regfile_t wb2regfile_i,
+  output fir_xifu_regfile2wb_t regfile2wb_o
 );
-
-  localparam int unsigned TAPS_PER_WORD = 32 / DATA_WIDTH;
   
-  logic [NB_REGS-1:0][31:0] regs_d, regs_q;
+  logic [NB_REGS-1:0][31:0] regs_q;
+  
+  // 3 RF read ports in EX stage (three MUX networks)
+  assign regfile2ex_o.op_a = regs_q[ex2regfile_i.rs1];
+  assign regfile2ex_o.op_b = regs_q[ex2regfile_i.rs2];
+  assign regfile2ex_o.op_c = regs_q[ex2regfile_i.rd];
 
-  // EX/WB pipe stage
-  always_ff @(posedge clk_i, negedge rst_ni)
-  begin
-    if(~rst_ni) begin
-      regs_q <= '0;
+  // 1 RF write port in WB stage
+  for(genvar ii=0; ii<NB_REGS; ii++) begin
+
+    // the separate write_en allow for separate automatic clock-gating of the RF
+    logic write_en;
+    assign write_en = wb2regfile_i.write & (wb2regfile_i.rd == ii);
+
+    always_ff @(posedge clk_i or negedge rst_ni)
+    begin
+      if(~rst_ni) begin
+        regs_q[ii] <= '0;
+      end 
+      else if(write_en)
+        regs_q[ii] <= wb2regfile_i.result;
+      end
     end
-    else if (xif_issue_i.issue_valid) begin
-      ex2wb_o.next_addr <= next_addr;
-      ex2wb_o.register  <= xifu_get_rs1(xif_issue_i.instr);
-    end
+
   end
 
-`ifndef SYNTHESIS
-`ifndef VERILATOR
-  // use assertions to check that the streams have the correct width
-  // assert property (@(posedge clk_i) disable iff(~rst_ni)
-  //   (h_parallel.DATA_WIDTH) == (DATA_WIDTH*NB_TAPS));
-  // assert property (@(posedge clk_i) disable iff(~rst_ni)
-  //   (h_serial.DATA_WIDTH) == (DATA_WIDTH));
-  assert property (@(posedge clk_i) disable iff(~rst_ni)
-    (32/TAPS_PER_WORD) == (DATA_WIDTH));
-`endif
-`endif
-
-endmodule /* fir_xifu_ctrl */
+endmodule /* fir_xifu_regfile */

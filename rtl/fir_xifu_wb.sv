@@ -26,16 +26,16 @@ module fir_xifu_wb
   
   input  fir_xifu_ex2wb_t   ex2wb_i,
 
-  output fir_xifu_wb2ctrl_t wb2ctrl_o,
-  input  fir_xifu_ctrl2wb_t ctrl2wb_i
+  output fir_xifu_wb2regfile_t wb2regfile_o,
+  input  fir_xifu_regfile2wb_t regfile2wb_i
 );
 
   logic [31:0] rdata;
   assign rdata = xif_mem_result_i.mem_result.rdata;
 
-  assign wb2ctrl_o.sample = xif_mem_result_i.mem_result.rdata;
-  assign wb2ctrl_o.instr  = ex2wb_i.instr;
-  assign wb2ctrl_o.valid  = xif_mem_result_i.mem_result_valid;
+  assign wb2regfile_o.result = ex2wb_i.instr == INSTR_XFIRLW   ? xif_mem_result_i.mem_result.rdata : ex2wb_i.result;
+  assign wb2regfile_o.write  = ex2wb_i.instr == INSTR_XFIRLW || ex2wb_i.instr == INSTR_XFIRDOTP ? 1'b1 : 1'b0;
+  assign wb2regfile_o.rd     = ex2wb_i.rd;
 
   // update base address
   always_comb
@@ -45,8 +45,8 @@ module fir_xifu_wb
     if(ex2wb_i.instr == INSTR_XFIRSW || ex2wb_i.instr == INSTR_XFIRLW) begin
       xif_result_o.result_valid = xif_mem_result_i.mem_result_valid;
       xif_result_o.result.id    = xif_mem_result_i.mem_result.id;
-      xif_result_o.result.data  = ex2wb_i.next_addr;
-      xif_result_o.result.rd    = ex2wb_i.rs1; // autoincrement
+      xif_result_o.result.data  = ex2wb_i.result; // autoincrement
+      xif_result_o.result.rd    = ex2wb_i.rs1;
       xif_result_o.result.we    = 1'b1;
     end
   end

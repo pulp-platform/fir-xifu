@@ -32,12 +32,12 @@ module fir_xifu_top
   cv32e40x_if_xif.coproc_result     xif_result_o
 );
 
-  fir_xifu_id2ctrl_t id2ctrl;
-  fir_xifu_ctrl2id_t ctrl2id;
-  fir_xifu_ex2ctrl_t ex2ctrl;
-  fir_xifu_ctrl2ex_t ctrl2ex;
-  fir_xifu_wb2ctrl_t wb2ctrl;
-  fir_xifu_ctrl2wb_t ctrl2wb;
+  fir_xifu_id2regfile_t id2regfile;
+  fir_xifu_regfile2id_t regfile2id;
+  fir_xifu_ex2regfile_t ex2regfile;
+  fir_xifu_regfile2ex_t regfile2ex;
+  fir_xifu_wb2regfile_t wb2regfile;
+  fir_xifu_regfile2wb_t regfile2wb;
 
   // CV32E40X does not currently support compressed XIF instructions
   assign xif_compressed_i.compressed_ready = 1'b1;
@@ -49,8 +49,8 @@ module fir_xifu_top
     .xif_issue_i      ( xif_issue_i  ),
     .xif_commit_i     ( xif_commit_i ),
     .id2ex_o          ( id2ex        ),
-    .id2ctrl_o        ( id2ctrl      ),
-    .ctrl2id_i        ( ctrl2id      )
+    .id2regfile_o     ( id2regfile   ),
+    .regfile2id_i     ( regfile2id   )
   )
 
   fir_xifu_ex i_ex (
@@ -59,8 +59,8 @@ module fir_xifu_top
     .xif_mem_o        ( xif_mem_o    ),
     .id2ex_i          ( id2ex        ),
     .ex2wb_o          ( ex2wb        ),
-    .ex2ctrl_o        ( ex2ctrl      ),
-    .ctrl2ex_i        ( ctrl2ex      )
+    .ex2regfile_o     ( ex2regfile   ),
+    .regfile2ex_i     ( regfile2ex   )
   )
 
   fir_xifu_wb i_wb (
@@ -69,19 +69,19 @@ module fir_xifu_top
     .xif_mem_result_i ( xif_mem_result_i ),
     .xif_result_o     ( xif_result_o     ),
     .ex2wb_i          ( ex2wb            ),
-    .wb2ctrl_o        ( wb2ctrl          ),
-    .ctrl2wb_i        ( ctrl2wb          )
+    .wb2regfile_o     ( wb2regfile       ),
+    .regfile2wb_i     ( regfile2wb       )
   )
   
-  fir_xifu_ctrl i_ctrl (
-    .clk_i            ( clk_i   ),
-    .rst_ni           ( rst_ni  ),
-    .id2ctrl_i        ( id2ctrl ),
-    .ctrl2id_o        ( ctrl2id ),
-    .ex2ctrl_i        ( ex2ctrl ),
-    .ctrl2ex_o        ( ctrl2ex ),
-    .wb2ctrl_i        ( wb2ctrl ),
-    .ctrl2wb_o        ( ctrl2wb )
+  fir_xifu_regfile i_regfile (
+    .clk_i            ( clk_i      ),
+    .rst_ni           ( rst_ni     ),
+    .id2regfile_i     ( id2regfile ),
+    .regfile2id_o     ( regfile2id ),
+    .ex2regfile_i     ( ex2regfile ),
+    .regfile2ex_o     ( regfile2ex ),
+    .wb2regfile_i     ( wb2regfile ),
+    .regfile2wb_o     ( regfile2wb )
   )
   
 endmodule /* fir_xifu_top */

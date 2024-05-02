@@ -25,8 +25,8 @@ module fir_xifu_id
   
   output fir_xifu_id2ex_t   id2ex_o,
 
-  output fir_xifu_id2ctrl_t id2ctrl_o,
-  input  fir_xifu_ctrl2id_t ctrl2id_i
+  output fir_xifu_id2regfile_t id2regfile_o,
+  input  fir_xifu_regfile2id_t regfile2id_i
 );
 
   // the XIFU is always ready to accept instructions
@@ -88,6 +88,7 @@ module fir_xifu_id
     end
     id2ex_d.instr = instr;
     id2ex_d.rs1 = xifu_get_rs1(xif_issue_req.instr);
+    id2ex_d.rs2 = xifu_get_rs2(xif_issue_req.instr);
     id2ex_d.rd  = xifu_get_rd(xif_issue_req.instr);
   end
   
@@ -101,13 +102,10 @@ module fir_xifu_id
     end
   end
 
-  // to CTRL / XIFU reg file
+  // to regfile / XIFU reg file
   always_comb
   begin
-    id2ctrl_o = '0;
-    id2ctrl_o.rs1 = xifu_get_rs1(xif_issue_req.instr);
-    id2ctrl_o.rs2 = xifu_get_rs2(xif_issue_req.instr);
-    id2ctrl_o.rd  = xifu_get_rd(xif_issue_req.instr);
+    id2regfile_o = '0;
   end
 
 endmodule /* fir_xifu_id */

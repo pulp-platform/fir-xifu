@@ -82,6 +82,7 @@ package fir_xifu_pkg;
     logic [31:0] base;
     logic [11:0] offset;
     logic [4:0]  rs1;
+    logic [4:0]  rs2;
     logic [4:0]  rd;
   } fir_xifu_id2ex_t;
     
@@ -89,37 +90,38 @@ package fir_xifu_pkg;
     fir_xifu_instr_t instr;
     logic [31:0] result;
     logic [4:0]  rs1;
+    logic [4:0]  rs2;
     logic [4:0]  rd;
   } fir_xifu_ex2wb_t;
+
+  typedef struct {
+    logic placeholder
+  } fir_xifu_id2regfile_t;
+
+  typedef struct {
+    logic placeholder
+  } fir_xifu_regfile2id_t;
 
   typedef struct {
     logic [4:0]  rs1;
     logic [4:0]  rs2;
     logic [4:0]  rd;
-  } fir_xifu_id2ctrl_t;
-
-  typedef struct {
-    logic placeholder
-  } fir_xifu_ctrl2id_t;
-
-  typedef struct {
-    logic placeholder
-  } fir_xifu_ex2ctrl_t;
+  } fir_xifu_ex2regfile_t;
 
   typedef struct {
     logic [31:0] op_a;
     logic [31:0] op_b;
     logic [31:0] op_c;
-  } fir_xifu_ctrl2ex_t;
+  } fir_xifu_regfile2ex_t;
 
   typedef struct {
-    logic [31:0] sample;
-    logic [31:0] tap;
-    logic        valid;
-  } fir_xifu_wb2ctrl_t;
+    logic [31:0] result;
+    logic [4:0]  rd;
+    logic        write;
+  } fir_xifu_wb2regfile_t;
 
   typedef struct {
     logic placeholder
-  } fir_xifu_ctrl2wb_t;
+  } fir_xifu_regfile2wb_t;
 
 endpackage /* fir_xifu_pkg */

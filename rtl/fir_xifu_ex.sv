@@ -28,8 +28,8 @@ module fir_xifu_ex
   input  fir_xifu_id2ex_t   id2ex_i,
   output fir_xifu_ex2wb_t   ex2wb_o,
 
-  output fir_xifu_ex2ctrl_t ex2ctrl_o,
-  input  fir_xifu_ctrl2ex_t ctrl2ex_i
+  output fir_xifu_ex2regfile_t ex2regfile_o,
+  input  fir_xifu_regfile2ex_t regfile2ex_i
 );
 
   // compute address for next iteration
@@ -48,7 +48,7 @@ module fir_xifu_ex
       xif_mem_o.mem_req.we    = id2ex_i.instr == INSTR_XFIRSW;
       xif_mem_o.mem_req.size  = 3'b100;
       xif_mem_o.mem_req.be    = 4'b1111;
-      xif_mem_o.mem_req.wdata = ctrl2ex.sample;
+      xif_mem_o.mem_req.wdata = regfile2ex.sample;
       xif_mem_o.mem_req.last  = 1'b1;
     end
   end
@@ -56,9 +56,9 @@ module fir_xifu_ex
   // dot product calculation (with operand gating)
   logic signed [1:0][15:0] dotp_op_a, dotp_op_b;
   logic signed [31:0] dotp_op_c, dotp_result;
-  assign dotp_op_a = id2ex_i.instr == INSTR_XFIRDOTP ? signed'(ctrl2ex_i.op_a) : '0;
-  assign dotp_op_b = id2ex_i.instr == INSTR_XFIRDOTP ? signed'(ctrl2ex_i.op_b) : '0;
-  assign dotp_op_c = id2ex_i.instr == INSTR_XFIRDOTP ? signed'(ctrl2ex_i.op_c) : '0;
+  assign dotp_op_a = id2ex_i.instr == INSTR_XFIRDOTP ? signed'(regfile2ex_i.op_a) : '0;
+  assign dotp_op_b = id2ex_i.instr == INSTR_XFIRDOTP ? signed'(regfile2ex_i.op_b) : '0;
+  assign dotp_op_c = id2ex_i.instr == INSTR_XFIRDOTP ? signed'(regfile2ex_i.op_c) : '0;
   assign dotp_result = (dotp_op_a[0] * dotp_op_b[0] + dotp_op_a[1] * dotp_op_b[1] * 32'sh1) + dotp_op_c;
 
   // EX/WB pipe stage
@@ -69,6 +69,7 @@ module fir_xifu_ex
     ex2wb_d = '0;
     ex2wb_d.result = id2ex_i.instr == INSTR_XFIRDOTP ? dotp_result : next_addr;
     ex2wb_d.rs1    = id2ex_i.rs1;
+    ex2wb_d.rs2    = id2ex_i.rs2;
     ex2wb_d.rd     = id2ex_i.rd;
     ex2wb_d.instr  = id2ex_i.instr;
   end
@@ -81,6 +82,15 @@ module fir_xifu_ex
     else if (xif_issue_i.issue_valid) begin
       ex2wb_o <= ex2
     end
+  end
+
+  // to regfile / XIFU reg file
+  always_comb
+  begin
+    ex2regfile_o = '0;
+    ex2regfile_o.rs1 = id2ex_i.rs1;
+    ex2regfile_o.rs2 = id2ex_i.rs2;
+    ex2regfile_o.rd  = id2ex_i.rd;
   end
 
 endmodule /* fir_xifu_ex */
