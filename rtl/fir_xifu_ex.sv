@@ -20,6 +20,7 @@ module fir_xifu_ex
 (
   input  logic clk_i,
   input  logic rst_ni,
+  input  logic clear_i,
 
   cv32e40x_if_xif.coproc_issue  xif_issue_i,
   cv32e40x_if_xif.coproc_commit xif_commit_i,
@@ -72,6 +73,7 @@ module fir_xifu_ex
     ex2wb_d.rs2    = id2ex_i.rs2;
     ex2wb_d.rd     = id2ex_i.rd;
     ex2wb_d.instr  = id2ex_i.instr;
+    ex2wb_d.id     = id2ex_i.id;
   end
 
   always_ff @(posedge clk_i, negedge rst_ni)
@@ -79,7 +81,10 @@ module fir_xifu_ex
     if(~rst_ni) begin
       ex2wb_o <= '0;
     end
-    else if (xif_issue_i.issue_valid) begin
+    else if(clear_i) begin
+      ex2wb_o <= '0;
+    end
+    else if(xif_issue_i.issue_valid) begin
       ex2wb_o <= ex2
     end
   end

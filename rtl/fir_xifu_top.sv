@@ -32,12 +32,10 @@ module fir_xifu_top
   cv32e40x_if_xif.coproc_result     xif_result_o
 );
 
-  fir_xifu_id2regfile_t id2regfile;
-  fir_xifu_regfile2id_t regfile2id;
+  logic clear;
   fir_xifu_ex2regfile_t ex2regfile;
   fir_xifu_regfile2ex_t regfile2ex;
   fir_xifu_wb2regfile_t wb2regfile;
-  fir_xifu_regfile2wb_t regfile2wb;
 
   // CV32E40X does not currently support compressed XIF instructions
   assign xif_compressed_i.compressed_ready = 1'b1;
@@ -46,14 +44,15 @@ module fir_xifu_top
   fir_xifu_id i_id (
     .clk_i            ( clk_i        ),
     .rst_ni           ( rst_ni       ),
+    .clear_i          ( clear        ),
     .xif_issue_i      ( xif_issue_i  ),
-    .xif_commit_i     ( xif_commit_i ),
     .id2ex_o          ( id2ex        )
   )
 
   fir_xifu_ex i_ex (
     .clk_i            ( clk_i        ),
     .rst_ni           ( rst_ni       ),
+    .clear_i          ( clear        ),
     .xif_mem_o        ( xif_mem_o    ),
     .id2ex_i          ( id2ex        ),
     .ex2wb_o          ( ex2wb        ),
@@ -67,15 +66,17 @@ module fir_xifu_top
     .xif_mem_result_i ( xif_mem_result_i ),
     .xif_result_o     ( xif_result_o     ),
     .ex2wb_i          ( ex2wb            ),
-    .wb2regfile_o     ( wb2regfile       )
+    .wb2regfile_o     ( wb2regfile       ),
+    .kill_o           ( clear            )
   )
   
   fir_xifu_regfile i_regfile (
-    .clk_i            ( clk_i      ),
-    .rst_ni           ( rst_ni     ),
-    .ex2regfile_i     ( ex2regfile ),
-    .regfile2ex_o     ( regfile2ex ),
-    .wb2regfile_i     ( wb2regfile )
+    .clk_i            ( clk_i        ),
+    .rst_ni           ( rst_ni       ),
+    .xif_commit_i     ( xif_commit_i ),
+    .ex2regfile_i     ( ex2regfile   ),
+    .regfile2ex_o     ( regfile2ex   ),
+    .wb2regfile_i     ( wb2regfile   )
   )
   
 endmodule /* fir_xifu_top */

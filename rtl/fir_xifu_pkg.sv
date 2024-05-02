@@ -16,6 +16,9 @@
 
 package fir_xifu_pkg;
 
+  // Width of XIF ID field
+  parameter int unsigned X_ID_WIDTH = 4;
+
   // inst[4:2]=110 [6:5]=10 [1:0]=11
   parameter logic [6:0] INSTR_OPCODE = 7'b1011011;
 
@@ -84,6 +87,7 @@ package fir_xifu_pkg;
     logic [4:0]  rs1;
     logic [4:0]  rs2;
     logic [4:0]  rd;
+    logic [X_ID_WIDTH-1:0] id;
   } fir_xifu_id2ex_t;
     
   typedef struct {
@@ -92,15 +96,8 @@ package fir_xifu_pkg;
     logic [4:0]  rs1;
     logic [4:0]  rs2;
     logic [4:0]  rd;
+    logic [X_ID_WIDTH-1:0] id;
   } fir_xifu_ex2wb_t;
-
-  typedef struct {
-    logic placeholder
-  } fir_xifu_id2regfile_t;
-
-  typedef struct {
-    logic placeholder
-  } fir_xifu_regfile2id_t;
 
   typedef struct {
     logic [4:0]  rs1;
@@ -119,9 +116,5 @@ package fir_xifu_pkg;
     logic [4:0]  rd;
     logic        write;
   } fir_xifu_wb2regfile_t;
-
-  typedef struct {
-    logic placeholder
-  } fir_xifu_regfile2wb_t;
 
 endpackage /* fir_xifu_pkg */

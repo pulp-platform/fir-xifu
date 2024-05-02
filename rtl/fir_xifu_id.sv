@@ -20,6 +20,7 @@ module fir_xifu_id
 (
   input  logic clk_i,
   input  logic rst_ni,
+  input  logic clear_i,
 
   cv32e40x_if_xif.coproc_issue xif_issue_i,
   
@@ -87,11 +88,15 @@ module fir_xifu_id
     id2ex_d.rs1 = xifu_get_rs1(xif_issue_req.instr);
     id2ex_d.rs2 = xifu_get_rs2(xif_issue_req.instr);
     id2ex_d.rd  = xifu_get_rd(xif_issue_req.instr);
+    id2ex_d.id  = xif_issue_i.issue_req.id;
   end
   
   always_ff @(posedge clk_i, negedge rst_ni)
   begin
     if(~rst_ni) begin
+      id2ex_o <= '0;
+    end
+    else if(clear_i) begin
       id2ex_o <= '0;
     end
     else if (xif_issue_i.issue_valid & valid_instr) begin
