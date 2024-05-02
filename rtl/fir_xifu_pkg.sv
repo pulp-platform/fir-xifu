@@ -74,13 +74,13 @@ package fir_xifu_pkg;
   endfunction
 
   typedef enum logic[1:0] {
-    INSTR_XFIRLW : 2'b00,
-    INSTR_XFIRSW : 2'b01,
-    INSTR_XFIRDOTP : 2'b10,
-    INSTR_INVALID : 2'b11
+    INSTR_XFIRLW   = 2'b00,
+    INSTR_XFIRSW   = 2'b01,
+    INSTR_XFIRDOTP = 2'b10,
+    INSTR_INVALID  = 2'b11
   } fir_xifu_instr_t;
     
-  typedef struct {
+  typedef struct packed {
     fir_xifu_instr_t instr;
     logic [31:0] base;
     logic [11:0] offset;
@@ -90,7 +90,7 @@ package fir_xifu_pkg;
     logic [X_ID_WIDTH-1:0] id;
   } fir_xifu_id2ex_t;
     
-  typedef struct {
+  typedef struct packed {
     fir_xifu_instr_t instr;
     logic [31:0] result;
     logic [4:0]  rs1;
@@ -99,19 +99,19 @@ package fir_xifu_pkg;
     logic [X_ID_WIDTH-1:0] id;
   } fir_xifu_ex2wb_t;
 
-  typedef struct {
+  typedef struct packed {
     logic [4:0]  rs1;
     logic [4:0]  rs2;
     logic [4:0]  rd;
   } fir_xifu_ex2regfile_t;
 
-  typedef struct {
+  typedef struct packed {
     logic [31:0] op_a;
     logic [31:0] op_b;
     logic [31:0] op_c;
   } fir_xifu_regfile2ex_t;
 
-  typedef struct {
+  typedef struct packed {
     logic [31:0] result;
     logic [4:0]  rd;
     logic        write;

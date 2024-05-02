@@ -43,7 +43,7 @@ module fir_xifu_ex
   begin
     xif_mem_o.mem_req   = '0;
     xif_mem_o.mem_valid = '0;
-    if(valid_instr) begin
+    if(id2ex_i.instr == INSTR_XFIRSW || id2ex_i.instr == INSTR_XFIRLW) begin
       xif_mem_o.mem_req.id    = xif_issue_i.issue_req.id;
       xif_mem_o.mem_req.addr  = xif_issue_i.issue_req.rs[0];
       xif_mem_o.mem_req.we    = id2ex_i.instr == INSTR_XFIRSW;
@@ -85,7 +85,7 @@ module fir_xifu_ex
       ex2wb_o <= '0;
     end
     else if(xif_issue_i.issue_valid) begin
-      ex2wb_o <= ex2
+      ex2wb_o <= ex2wb_d;
     end
   end
 

@@ -47,7 +47,7 @@ module fir_xifu_regfile
       if(~rst_ni) begin
         regs_q[ii] <= '0;
       end 
-      else if(write_en)
+      else if(write_en) begin
         regs_q[ii] <= wb2regfile_i.result;
       end
     end

@@ -38,7 +38,6 @@ module fir_xifu_id
   begin
     xif_issue_i.issue_resp = '0;
     valid_instr = 1'b0;
-    store = 1'b0;
     if(xif_issue_i.issue_valid & (xifu_get_opcode(xif_issue_i.issue_req.instr) == INSTR_OPCODE)) begin
       unique case(xifu_get_funct3(xif_issue_i.issue_req.instr))
         INSTR_XFIRLW_FUNCT3 : begin
@@ -78,7 +77,7 @@ module fir_xifu_id
   begin
     id2ex_d = '0;
     id2ex_d.base = xif_issue_i.issue_req.rs[0];
-    if(store) begin
+    if(instr == INSTR_XFIRSW) begin
       id2ex_d.offset <= xifu_get_immediate_S(xif_issue_i.issue_req.instr);
     end
     else begin

@@ -47,7 +47,7 @@ module fir_xifu_top
     .clear_i          ( clear        ),
     .xif_issue_i      ( xif_issue_i  ),
     .id2ex_o          ( id2ex        )
-  )
+  );
 
   fir_xifu_ex i_ex (
     .clk_i            ( clk_i        ),
@@ -58,7 +58,7 @@ module fir_xifu_top
     .ex2wb_o          ( ex2wb        ),
     .ex2regfile_o     ( ex2regfile   ),
     .regfile2ex_i     ( regfile2ex   )
-  )
+  );
 
   fir_xifu_wb i_wb (
     .clk_i            ( clk_i            ),
@@ -68,7 +68,7 @@ module fir_xifu_top
     .ex2wb_i          ( ex2wb            ),
     .wb2regfile_o     ( wb2regfile       ),
     .kill_o           ( clear            )
-  )
+  );
   
   fir_xifu_regfile i_regfile (
     .clk_i            ( clk_i        ),
@@ -77,6 +77,6 @@ module fir_xifu_top
     .ex2regfile_i     ( ex2regfile   ),
     .regfile2ex_o     ( regfile2ex   ),
     .wb2regfile_i     ( wb2regfile   )
-  )
+  );
   
 endmodule /* fir_xifu_top */
