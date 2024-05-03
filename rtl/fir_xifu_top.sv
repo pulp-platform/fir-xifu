@@ -42,6 +42,7 @@ module fir_xifu_top
   fir_xifu_ex2wb_t ex2wb;
 
   fir_xifu_id2ctrl_t id2ctrl;
+  fir_xifu_ctrl2ex_t ctrl2ex;
   fir_xifu_wb2ctrl_t wb2ctrl;
   fir_xifu_ctrl2wb_t ctrl2wb;
 
@@ -52,26 +53,27 @@ module fir_xifu_top
   assign xif_compressed_i.compressed_resp  = '0;
 
   fir_xifu_id i_id (
-    .clk_i            ( clk_i        ),
-    .rst_ni           ( rst_ni       ),
-    .clear_i          ( clear        ),
-    .xif_issue_i      ( xif_issue_i  ),
-    .id2ex_o          ( id2ex        ),
-    .id2ctrl_o        ( id2ctrl      ),
-    .ready_i          ( ex_ready     )
+    .clk_i            ( clk_i       ),
+    .rst_ni           ( rst_ni      ),
+    .clear_i          ( clear       ),
+    .xif_issue_i      ( xif_issue_i ),
+    .id2ex_o          ( id2ex       ),
+    .id2ctrl_o        ( id2ctrl     ),
+    .ready_i          ( ex_ready    )
   );
 
   fir_xifu_ex i_ex (
-    .clk_i            ( clk_i        ),
-    .rst_ni           ( rst_ni       ),
-    .clear_i          ( clear        ),
-    .xif_mem_o        ( xif_mem_o    ),
-    .id2ex_i          ( id2ex        ),
-    .ex2wb_o          ( ex2wb        ),
-    .ex2regfile_o     ( ex2regfile   ),
-    .regfile2ex_i     ( regfile2ex   ),
-    .ready_o          ( ex_ready     ),
-    .ready_i          ( wb_ready     )
+    .clk_i            ( clk_i      ),
+    .rst_ni           ( rst_ni     ),
+    .clear_i          ( clear      ),
+    .xif_mem_o        ( xif_mem_o  ),
+    .id2ex_i          ( id2ex      ),
+    .ex2wb_o          ( ex2wb      ),
+    .ex2regfile_o     ( ex2regfile ),
+    .regfile2ex_i     ( regfile2ex ),
+    .ctrl2ex_i        ( ctrl2ex    ),
+    .ready_o          ( ex_ready   ),
+    .ready_i          ( wb_ready   )
   );
 
   fir_xifu_wb i_wb (
@@ -92,16 +94,17 @@ module fir_xifu_top
     .rst_ni           ( rst_ni       ),
     .xif_commit_i     ( xif_commit_i ),
     .id2ctrl_i        ( id2ctrl      ),
+    .ctrl2ex_o        ( ctrl2ex      ),
     .wb2ctrl_i        ( wb2ctrl      ),
     .ctrl2wb_o        ( ctrl2wb      )
   );
   
   fir_xifu_regfile i_regfile (
-    .clk_i            ( clk_i        ),
-    .rst_ni           ( rst_ni       ),
-    .ex2regfile_i     ( ex2regfile   ),
-    .regfile2ex_o     ( regfile2ex   ),
-    .wb2regfile_i     ( wb2regfile   )
+    .clk_i            ( clk_i      ),
+    .rst_ni           ( rst_ni     ),
+    .ex2regfile_i     ( ex2regfile ),
+    .regfile2ex_o     ( regfile2ex ),
+    .wb2regfile_i     ( wb2regfile )
   );
   
 endmodule /* fir_xifu_top */

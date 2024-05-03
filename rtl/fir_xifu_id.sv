@@ -75,7 +75,7 @@ module fir_xifu_id
     end
   end
 
-  // Save issue state in controller
+  // Save issue state in controller scoreboard
   assign id2ctrl_o.issue = valid_instr;
   assign id2ctrl_o.id    = xif_issue_i.issue_req.id;
 

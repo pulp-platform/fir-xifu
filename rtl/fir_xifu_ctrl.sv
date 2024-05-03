@@ -23,10 +23,10 @@ module fir_xifu_ctrl
 
   cv32e40x_if_xif.coproc_commit     xif_commit_i,
 
+  input  fir_xifu_id2ctrl_t id2ctrl_i,
+  output fir_xifu_ctrl2ex_t ctrl2ex_o,
   input  fir_xifu_wb2ctrl_t wb2ctrl_i,
-  output fir_xifu_ctrl2wb_t ctrl2wb_o,
-
-  input  fir_xifu_id2ctrl_t id2ctrl_i
+  output fir_xifu_ctrl2wb_t ctrl2wb_o
 );
 
   // Mask commits that are repeated multiple times for the same ID.
@@ -48,7 +48,7 @@ module fir_xifu_ctrl
   end
   assign actual_commit = (xif_id_q != xif_commit_i.commit.id) ? xif_commit_i.commit_valid : xif_commit_i.commit_valid & ~xif_commit_q;
 
-  // Save issue/commit/kill status. Only actually issued instructions can be committed/killed!
+  // Save issue/commit/kill status in a small scoreboard. Only actually issued instructions can be committed/killed!
   logic [X_ID_MAX-1:0] issue_d, issue_q;
   logic [X_ID_MAX-1:0] valid_d, valid_q;
   logic [X_ID_MAX-1:0] kill_d,  kill_q;
@@ -78,8 +78,12 @@ module fir_xifu_ctrl
     end
   end
 
+  // commit *must* be registered, as it is used to generate a clear in WB
   assign ctrl2wb_o.issue  = issue_q;
   assign ctrl2wb_o.commit = valid_q;
   assign ctrl2wb_o.kill   = kill_q;
+
+  // commit can be combinational in EX
+  assign ctrl2ex_o.commit = valid_d | valid_q & ~kill_q & ~kill_d;
 
 endmodule /* fir_xifu_ctrl */

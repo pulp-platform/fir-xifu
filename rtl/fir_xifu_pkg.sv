@@ -124,6 +124,10 @@ package fir_xifu_pkg;
   } fir_xifu_id2ctrl_t;
 
   typedef struct packed {
+    logic [X_ID_MAX-1:0] commit;
+  } fir_xifu_ctrl2ex_t;
+
+  typedef struct packed {
     logic [X_ID_MAX-1:0] clear;
   } fir_xifu_wb2ctrl_t;
 
