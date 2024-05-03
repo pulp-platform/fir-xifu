@@ -38,6 +38,7 @@ module fir_xifu_id
   begin
     xif_issue_i.issue_resp = '0;
     valid_instr = 1'b0;
+    instr = INSTR_INVALID;
     if(xif_issue_i.issue_valid & (xifu_get_opcode(xif_issue_i.issue_req.instr) == INSTR_OPCODE)) begin
       unique case(xifu_get_funct3(xif_issue_i.issue_req.instr))
         INSTR_XFIRLW_FUNCT3 : begin
@@ -84,9 +85,9 @@ module fir_xifu_id
       id2ex_d.offset <= xifu_get_immediate_I(xif_issue_i.issue_req.instr);
     end
     id2ex_d.instr = instr;
-    id2ex_d.rs1 = xifu_get_rs1(xif_issue_req.instr);
-    id2ex_d.rs2 = xifu_get_rs2(xif_issue_req.instr);
-    id2ex_d.rd  = xifu_get_rd(xif_issue_req.instr);
+    id2ex_d.rs1 = xifu_get_rs1(xif_issue_i.issue_req.instr);
+    id2ex_d.rs2 = xifu_get_rs2(xif_issue_i.issue_req.instr);
+    id2ex_d.rd  = xifu_get_rd(xif_issue_i.issue_req.instr);
     id2ex_d.id  = xif_issue_i.issue_req.id;
   end
   
@@ -98,7 +99,8 @@ module fir_xifu_id
     else if(clear_i) begin
       id2ex_o <= '0;
     end
-    else if (xif_issue_i.issue_valid & valid_instr) begin
+    // else if (xif_issue_i.issue_valid & valid_instr) begin
+    else begin
       id2ex_o <= id2ex_d;
     end
   end

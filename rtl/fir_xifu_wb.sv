@@ -36,8 +36,8 @@ module fir_xifu_wb
   assign rdata = xif_mem_result_i.mem_result.rdata;
 
   logic commit;
-  assign commit = xif_commit_i.commit_valid & ~(xif_commit_i.commit.commit_kill==1'b1 && xif_commit_i.commit.id==ex2wb_i.id);
-  assign kill_o = xif_commit_i.commit_valid &  (xif_commit_i.commit.commit_kill==1'b1 && xif_commit_i.commit.id==ex2wb_i.id);
+  assign commit = (xif_commit_i.commit_valid & ~xif_commit_i.commit.commit_kill==1'b1) && xif_commit_i.commit.id==ex2wb_i.id;
+  assign kill_o = (xif_commit_i.commit_valid &  xif_commit_i.commit.commit_kill==1'b1) && xif_commit_i.commit.id==ex2wb_i.id;
   
   assign wb2regfile_o.result = ex2wb_i.instr == INSTR_XFIRLW   ? xif_mem_result_i.mem_result.rdata : ex2wb_i.result;
   assign wb2regfile_o.write  = ex2wb_i.instr == INSTR_XFIRLW || ex2wb_i.instr == INSTR_XFIRDOTP ? commit : 1'b0;
@@ -47,14 +47,17 @@ module fir_xifu_wb
   always_comb
   begin
     xif_result_o.result = '0;
-    xif_result_o.result_valid = '0;
-    if(commit & (ex2wb_i.instr == INSTR_XFIRSW || ex2wb_i.instr == INSTR_XFIRLW)) begin
-      xif_result_o.result_valid = xif_mem_result_i.mem_result_valid;
-      xif_result_o.result.id    = xif_mem_result_i.mem_result.id;
-      xif_result_o.result.data  = ex2wb_i.result; // autoincrement
-      xif_result_o.result.rd    = ex2wb_i.rs1;
-      xif_result_o.result.we    = 1'b1;
+    if(ex2wb_i.instr == INSTR_XFIRSW || ex2wb_i.instr == INSTR_XFIRLW) begin
+      xif_result_o.result_valid = commit & xif_mem_result_i.mem_result_valid;
     end
+    else begin
+      xif_result_o.result_valid = commit;
+    end
+    xif_result_o.result_valid = xif_mem_result_i.mem_result_valid;
+    xif_result_o.result.id    = xif_mem_result_i.mem_result.id;
+    xif_result_o.result.data  = ex2wb_i.result; // autoincrement
+    xif_result_o.result.rd    = ex2wb_i.rs1;
+    xif_result_o.result.we    = 1'b1;
   end
 
 endmodule /* fir_xifu_wb */

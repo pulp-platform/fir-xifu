@@ -22,8 +22,6 @@ module fir_xifu_ex
   input  logic rst_ni,
   input  logic clear_i,
 
-  cv32e40x_if_xif.coproc_issue  xif_issue_i,
-  cv32e40x_if_xif.coproc_commit xif_commit_i,
   cv32e40x_if_xif.coproc_mem    xif_mem_o,
   
   input  fir_xifu_id2ex_t   id2ex_i,
@@ -44,8 +42,9 @@ module fir_xifu_ex
     xif_mem_o.mem_req   = '0;
     xif_mem_o.mem_valid = '0;
     if(id2ex_i.instr == INSTR_XFIRSW || id2ex_i.instr == INSTR_XFIRLW) begin
-      xif_mem_o.mem_req.id    = xif_issue_i.issue_req.id;
-      xif_mem_o.mem_req.addr  = xif_issue_i.issue_req.rs[0];
+      xif_mem_o.mem_valid = 1'b1;
+      xif_mem_o.mem_req.id    = id2ex_i.id;
+      xif_mem_o.mem_req.addr  = id2ex_i.base;
       xif_mem_o.mem_req.we    = id2ex_i.instr == INSTR_XFIRSW;
       xif_mem_o.mem_req.size  = 3'b100;
       xif_mem_o.mem_req.be    = 4'b1111;
@@ -84,7 +83,8 @@ module fir_xifu_ex
     else if(clear_i) begin
       ex2wb_o <= '0;
     end
-    else if(xif_issue_i.issue_valid) begin
+    // else if(xif_issue_i.issue_valid) begin
+    else begin
       ex2wb_o <= ex2wb_d;
     end
   end

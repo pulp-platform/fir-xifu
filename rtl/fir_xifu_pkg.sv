@@ -74,10 +74,10 @@ package fir_xifu_pkg;
   endfunction
 
   typedef enum logic[1:0] {
-    INSTR_XFIRLW   = 2'b00,
-    INSTR_XFIRSW   = 2'b01,
-    INSTR_XFIRDOTP = 2'b10,
-    INSTR_INVALID  = 2'b11
+    INSTR_XFIRLW   = 2'b10,
+    INSTR_XFIRSW   = 2'b11,
+    INSTR_XFIRDOTP = 2'b01,
+    INSTR_INVALID  = 2'b00
   } fir_xifu_instr_t;
     
   typedef struct packed {
