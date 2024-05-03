@@ -30,8 +30,6 @@ module fir_xifu_ex
   output fir_xifu_ex2regfile_t ex2regfile_o,
   input  fir_xifu_regfile2ex_t regfile2ex_i,
 
-  input  fir_xifu_ctrl2ex_t ctrl2ex_i,
-
   input  logic ready_i,
   output logic ready_o
 );
@@ -47,7 +45,7 @@ module fir_xifu_ex
     xif_mem_o.mem_req   = '0;
     xif_mem_o.mem_valid = '0;
     if(id2ex_i.instr == INSTR_XFIRSW || id2ex_i.instr == INSTR_XFIRLW) begin
-      xif_mem_o.mem_valid     = ctrl2ex_i.issue[id2ex_i.id] & ctrl2ex_i.commit[id2ex_i.id] & ~ctrl2ex_i.kill[id2ex_i.id];
+      xif_mem_o.mem_valid = 1'b1;
       xif_mem_o.mem_req.id    = id2ex_i.id;
       xif_mem_o.mem_req.addr  = id2ex_i.base;
       xif_mem_o.mem_req.we    = id2ex_i.instr == INSTR_XFIRSW;
@@ -103,14 +101,6 @@ module fir_xifu_ex
   end
 
   // backprop ready
-  always_comb
-  begin
-    // generally just backprop ready
-    ready_o = ready_i;
-    // if the op is a load/store, then backprop something else
-    if(id2ex_i.instr == INSTR_XFIRSW || id2ex_i.instr == INSTR_XFIRLW) begin
-      ready_o = ready_i & ctrl2ex_i.issue[id2ex_i.id] & ctrl2ex_i.commit[id2ex_i.id] & ~ctrl2ex_i.kill[id2ex_i.id];
-    end
-  end
+  assign ready_o = ready_i;
 
 endmodule /* fir_xifu_ex */

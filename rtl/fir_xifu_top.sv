@@ -42,7 +42,6 @@ module fir_xifu_top
   fir_xifu_ex2wb_t ex2wb;
 
   fir_xifu_id2ctrl_t id2ctrl;
-  fir_xifu_ctrl2ex_t ctrl2ex;
   fir_xifu_wb2ctrl_t wb2ctrl;
   fir_xifu_ctrl2wb_t ctrl2wb;
 
@@ -71,7 +70,6 @@ module fir_xifu_top
     .ex2wb_o          ( ex2wb        ),
     .ex2regfile_o     ( ex2regfile   ),
     .regfile2ex_i     ( regfile2ex   ),
-    .ctrl2ex_i        ( ctrl2ex      ),
     .ready_o          ( ex_ready     ),
     .ready_i          ( wb_ready     )
   );
@@ -94,7 +92,6 @@ module fir_xifu_top
     .rst_ni           ( rst_ni       ),
     .xif_commit_i     ( xif_commit_i ),
     .id2ctrl_i        ( id2ctrl      ),
-    .ctrl2ex_o        ( ctrl2ex      ),
     .wb2ctrl_i        ( wb2ctrl      ),
     .ctrl2wb_o        ( ctrl2wb      )
   );
