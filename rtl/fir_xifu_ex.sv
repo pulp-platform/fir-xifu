@@ -28,7 +28,10 @@ module fir_xifu_ex
   output fir_xifu_ex2wb_t   ex2wb_o,
 
   output fir_xifu_ex2regfile_t ex2regfile_o,
-  input  fir_xifu_regfile2ex_t regfile2ex_i
+  input  fir_xifu_regfile2ex_t regfile2ex_i,
+
+  input  logic ready_i,
+  output logic ready_o
 );
 
   // compute address for next iteration
@@ -83,8 +86,7 @@ module fir_xifu_ex
     else if(clear_i) begin
       ex2wb_o <= '0;
     end
-    // else if(xif_issue_i.issue_valid) begin
-    else begin
+    else if(ready_i) begin
       ex2wb_o <= ex2wb_d;
     end
   end
@@ -97,5 +99,8 @@ module fir_xifu_ex
     ex2regfile_o.rs2 = id2ex_i.rs2;
     ex2regfile_o.rd  = id2ex_i.rd;
   end
+
+  // backprop ready
+  assign ready_o = ready_i;
 
 endmodule /* fir_xifu_ex */

@@ -24,11 +24,15 @@ module fir_xifu_id
 
   cv32e40x_if_xif.coproc_issue xif_issue_i,
   
-  output fir_xifu_id2ex_t   id2ex_o
+  output fir_xifu_id2ex_t   id2ex_o,
+
+  output fir_xifu_id2ctrl_t id2ctrl_o,
+
+  input  logic ready_i
 );
 
-  // the XIFU is always ready to accept instructions
-  assign xif_issue_i.issue_ready = 1'b1;
+  // Back-prop ready
+  assign xif_issue_i.issue_ready = ready_i;
 
   // decode XIFU-supported instructions
   logic valid_instr;
@@ -71,24 +75,30 @@ module fir_xifu_id
     end
   end
 
+  // Save issue state in controller
+  assign id2ctrl_o.issue = valid_instr;
+  assign id2ctrl_o.id    = xif_issue_i.issue_req.id;
+
   // ID/EX pipe stage
   fir_xifu_id2ex_t id2ex_d;
 
   always_comb
   begin
     id2ex_d = '0;
-    id2ex_d.base = xif_issue_i.issue_req.rs[0];
-    if(instr == INSTR_XFIRSW) begin
-      id2ex_d.offset <= xifu_get_immediate_S(xif_issue_i.issue_req.instr);
+    if(instr != INSTR_INVALID) begin
+      id2ex_d.base = xif_issue_i.issue_req.rs[0];
+      if(instr == INSTR_XFIRSW) begin
+        id2ex_d.offset <= xifu_get_immediate_S(xif_issue_i.issue_req.instr);
+      end
+      else begin
+        id2ex_d.offset <= xifu_get_immediate_I(xif_issue_i.issue_req.instr);
+      end
+      id2ex_d.instr = instr;
+      id2ex_d.rs1 = xifu_get_rs1(xif_issue_i.issue_req.instr);
+      id2ex_d.rs2 = xifu_get_rs2(xif_issue_i.issue_req.instr);
+      id2ex_d.rd  = xifu_get_rd(xif_issue_i.issue_req.instr);
+      id2ex_d.id  = xif_issue_i.issue_req.id;
     end
-    else begin
-      id2ex_d.offset <= xifu_get_immediate_I(xif_issue_i.issue_req.instr);
-    end
-    id2ex_d.instr = instr;
-    id2ex_d.rs1 = xifu_get_rs1(xif_issue_i.issue_req.instr);
-    id2ex_d.rs2 = xifu_get_rs2(xif_issue_i.issue_req.instr);
-    id2ex_d.rd  = xifu_get_rd(xif_issue_i.issue_req.instr);
-    id2ex_d.id  = xif_issue_i.issue_req.id;
   end
   
   always_ff @(posedge clk_i, negedge rst_ni)
@@ -99,8 +109,7 @@ module fir_xifu_id
     else if(clear_i) begin
       id2ex_o <= '0;
     end
-    // else if (xif_issue_i.issue_valid & valid_instr) begin
-    else begin
+    else if (ready_i) begin
       id2ex_o <= id2ex_d;
     end
   end

@@ -24,7 +24,9 @@ module fir_xifu_ctrl
   cv32e40x_if_xif.coproc_commit     xif_commit_i,
 
   input  fir_xifu_wb2ctrl_t wb2ctrl_i,
-  output fir_xifu_ctrl2wb_t ctrl2wb_o
+  output fir_xifu_ctrl2wb_t ctrl2wb_o,
+
+  input  fir_xifu_id2ctrl_t id2ctrl_i
 );
 
   // Mask commits that are repeated multiple times for the same ID.
@@ -46,30 +48,37 @@ module fir_xifu_ctrl
   end
   assign actual_commit = (xif_id_q != xif_commit_i.commit.id) ? xif_commit_i.commit_valid : xif_commit_i.commit_valid & ~xif_commit_q;
 
-  // Save commit/kill status 
+  // Save issue/commit/kill status. Only actually issued instructions can be committed/killed!
+  logic [X_ID_MAX-1:0] issue_d, issue_q;
   logic [X_ID_MAX-1:0] valid_d, valid_q;
   logic [X_ID_MAX-1:0] kill_d,  kill_q;
   for(genvar ii=0; ii<X_ID_MAX; ii++) begin
+    assign issue_d[ii] = wb2ctrl_i.clear[ii]                             ? 1'b0 :
+                         id2ctrl_i.issue && (id2ctrl_i.id == ii)         ? 1'b1 :
+                         issue_q[ii];
     assign valid_d[ii] = wb2ctrl_i.clear[ii]                             ? 1'b0 :
-                         actual_commit && (xif_commit_i.commit.id == ii) ? 1'b1 :
+                         actual_commit && (xif_commit_i.commit.id == ii) ? issue_q[ii] :
                          valid_q[ii];
     assign kill_d [ii] = wb2ctrl_i.clear[ii]                                                               ? 1'b0 :
-                         actual_commit & xif_commit_i.commit.commit_kill && (xif_commit_i.commit.id == ii) ? 1'b1 :
+                         actual_commit & xif_commit_i.commit.commit_kill && (xif_commit_i.commit.id == ii) ? issue_q[ii] :
                          valid_q[ii];
   end
 
   always_ff @(posedge clk_i or negedge rst_ni)
   begin
     if(~rst_ni) begin
+      issue_q <= '0;
       valid_q <= '0;
       kill_q  <= '0;
     end
     else begin
+      issue_q <= issue_d;
       valid_q <= valid_d;
       kill_q  <= kill_d;
     end
   end
 
+  assign ctrl2wb_o.issue  = issue_q;
   assign ctrl2wb_o.commit = valid_q;
   assign ctrl2wb_o.kill   = kill_q;
 

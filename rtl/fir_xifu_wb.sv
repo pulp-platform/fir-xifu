@@ -31,13 +31,15 @@ module fir_xifu_wb
   output fir_xifu_wb2ctrl_t wb2ctrl_o,
   input  fir_xifu_ctrl2wb_t ctrl2wb_i,
 
-  output logic kill_o
+  output logic kill_o,
+  output logic ready_o
 );
 
   logic [31:0] rdata;
   assign rdata = xif_mem_result_i.mem_result.rdata;
 
-  logic commit;
+  logic commit, issue;
+  assign issue  = ctrl2wb_i.issue [ex2wb_i.id];
   assign commit = ctrl2wb_i.commit[ex2wb_i.id];
   assign kill_o = ctrl2wb_i.kill  [ex2wb_i.id];
   
@@ -90,7 +92,10 @@ module fir_xifu_wb
     xif_result_o.result.id    = ex2wb_i.id;
     xif_result_o.result.data  = ex2wb_i.result; // autoincrement
     xif_result_o.result.rd    = ex2wb_i.rs1;
-    xif_result_o.result.we    = 1'b1;
+    xif_result_o.result.we    = (ex2wb_i.instr == INSTR_XFIRSW || ex2wb_i.instr == INSTR_XFIRLW);
   end
+
+  // Back-prop ready: the only condition in which we are not ready is when the current id is issued but not committed yet
+  assign ready_o = (issue & ~commit) && ex2wb_i.instr != INSTR_INVALID ? 1'b0 : 1'b1;
 
 endmodule /* fir_xifu_wb */
