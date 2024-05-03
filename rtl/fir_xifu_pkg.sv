@@ -18,6 +18,7 @@ package fir_xifu_pkg;
 
   // Width of XIF ID field
   parameter int unsigned X_ID_WIDTH = 4;
+  parameter int unsigned X_ID_MAX   = 2**X_ID_WIDTH;
 
   // inst[4:2]=110 [6:5]=10 [1:0]=11
   parameter logic [6:0] INSTR_OPCODE = 7'b1011011;
@@ -116,5 +117,14 @@ package fir_xifu_pkg;
     logic [4:0]  rd;
     logic        write;
   } fir_xifu_wb2regfile_t;
+
+  typedef struct packed {
+    logic [X_ID_MAX-1:0] clear;
+  } fir_xifu_wb2ctrl_t;
+
+  typedef struct packed {
+    logic [X_ID_MAX-1:0] commit;
+    logic [X_ID_MAX-1:0] kill;
+  } fir_xifu_ctrl2wb_t;
 
 endpackage /* fir_xifu_pkg */

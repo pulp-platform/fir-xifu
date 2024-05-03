@@ -19,6 +19,7 @@ sources:
       - rtl/fir_xifu_id.sv
       - rtl/fir_xifu_ex.sv
       - rtl/fir_xifu_wb.sv
+      - rtl/fir_xifu_ctrl.sv
       - rtl/fir_xifu_regfile.sv
       # Level 2
       - rtl/fir_xifu_top.sv

@@ -1,0 +1,76 @@
+/*
+ * fir_xifu_ctrl.sv
+ * Francesco Conti <f.conti@unibo.it>
+ *
+ * Copyright (C) 2024 ETH Zurich, University of Bologna
+ * Copyright and related rights are licensed under the Solderpad Hardware
+ * License, Version 0.51 (the "License"); you may not use this file except in
+ * compliance with the License.  You may obtain a copy of the License at
+ * http://solderpad.org/licenses/SHL-0.51. Unless required by applicable law
+ * or agreed to in writing, software, hardware and materials distributed under
+ * this License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ *
+ */
+
+module fir_xifu_ctrl
+  import cv32e40x_pkg::*;
+  import fir_xifu_pkg::*; 
+(
+  input  logic clk_i,
+  input  logic rst_ni,
+
+  cv32e40x_if_xif.coproc_commit     xif_commit_i,
+
+  input  fir_xifu_wb2ctrl_t wb2ctrl_i,
+  output fir_xifu_ctrl2wb_t ctrl2wb_o
+);
+
+  // Mask commits that are repeated multiple times for the same ID.
+  // The CV-XIF specs actually state that the commit arrives only once,
+  // but CV32E40X sometimes generates multiple commits for the same ID.
+  logic actual_commit;
+  logic                  xif_commit_q;
+  logic [X_ID_WIDTH-1:0] xif_id_q;
+  always_ff @(posedge clk_i or negedge rst_ni)
+  begin
+    if(~rst_ni) begin
+      xif_commit_q <= '0;
+      xif_id_q     <= '0;
+    end
+    else begin
+      xif_commit_q <= xif_commit_i.commit_valid;
+      xif_id_q     <= xif_commit_i.commit.id;
+    end
+  end
+  assign actual_commit = (xif_id_q != xif_commit_i.commit.id) ? xif_commit_i.commit_valid : xif_commit_i.commit_valid & ~xif_commit_q;
+
+  // Save commit/kill status 
+  logic [X_ID_MAX-1:0] valid_d, valid_q;
+  logic [X_ID_MAX-1:0] kill_d,  kill_q;
+  for(genvar ii=0; ii<X_ID_MAX; ii++) begin
+    assign valid_d[ii] = wb2ctrl_i.clear[ii]                             ? 1'b0 :
+                         actual_commit && (xif_commit_i.commit.id == ii) ? 1'b1 :
+                         valid_q[ii];
+    assign kill_d [ii] = wb2ctrl_i.clear[ii]                                                               ? 1'b0 :
+                         actual_commit & xif_commit_i.commit.commit_kill && (xif_commit_i.commit.id == ii) ? 1'b1 :
+                         valid_q[ii];
+  end
+
+  always_ff @(posedge clk_i or negedge rst_ni)
+  begin
+    if(~rst_ni) begin
+      valid_q <= '0;
+      kill_q  <= '0;
+    end
+    else begin
+      valid_q <= valid_d;
+      kill_q  <= kill_d;
+    end
+  end
+
+  assign ctrl2wb_o.commit = valid_q;
+  assign ctrl2wb_o.kill   = kill_q;
+
+endmodule /* fir_xifu_ctrl */
