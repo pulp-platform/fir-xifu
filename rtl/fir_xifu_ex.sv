@@ -36,12 +36,17 @@ module fir_xifu_ex
   output logic ready_o
 );
 
-  // compute address for next iteration
+  // Compute addresses: this is used for load/store operations, which
+  // need to compute the base+offset (with sign extension for the latter)
+  // and also the updated address using postincrement.
   logic [31:0] next_addr, curr_addr; 
   assign curr_addr = id2ex_i.base + signed'(id2ex_i.offset + 32'sh0);
   assign next_addr = curr_addr + 32'h4;
   
-  // issue memory transaction (load or store)
+  // Issue memory transaction (load or store): currently this is issued
+  // immediately for loads and only if a commit signal has arrived for
+  // stores (typically in the same EX cycle, at least for CV32E40X).
+  // The load/store operation is carried out by the core's LSU.
   always_comb
   begin
     xif_mem_o.mem_req   = '0;
@@ -52,7 +57,7 @@ module fir_xifu_ex
       else
         xif_mem_o.mem_valid = 1'b1;
       xif_mem_o.mem_req.id    = id2ex_i.id;
-      xif_mem_o.mem_req.addr  = id2ex_i.base;
+      xif_mem_o.mem_req.addr  = curr_addr;
       xif_mem_o.mem_req.we    = id2ex_i.instr == INSTR_XFIRSW;
       xif_mem_o.mem_req.size  = 3'b100;
       xif_mem_o.mem_req.be    = 4'b1111;
@@ -61,7 +66,11 @@ module fir_xifu_ex
     end
   end
 
-  // dot product calculation (with operand gating)
+  // Dot product calculation: here we split the operands, extracted from the register
+  // file, into 16-bit signed operands and perform the dot-product operation.
+  // We use operand gating to (potentially) save a bit of power at the cost of an
+  // extra logic layer. Notice the usage of a signed neutral constant (32'sh1) to
+  // make sure that the sign-extensions are performed properly.
   logic signed [1:0][15:0] dotp_op_a, dotp_op_b;
   logic signed [31:0] dotp_op_c, dotp_result;
   assign dotp_op_a = id2ex_i.instr == INSTR_XFIRDOTP ? signed'(regfile2ex_i.op_a) : '0;

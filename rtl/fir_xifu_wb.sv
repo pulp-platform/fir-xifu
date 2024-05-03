@@ -35,14 +35,16 @@ module fir_xifu_wb
   output logic ready_o
 );
 
-  logic [31:0] rdata;
-  assign rdata = xif_mem_result_i.mem_result.rdata;
-
+  // Extract all information on the current instruction status from
+  // the scoreboard.
+  // If an instruction is killed in WB, all the pipeline needs to be
+  // cleared.
   logic commit, issue;
   assign issue  = ctrl2wb_i.issue [ex2wb_i.id];
   assign commit = ctrl2wb_i.commit[ex2wb_i.id];
   assign kill_o = ctrl2wb_i.kill  [ex2wb_i.id];
   
+  // Set write-back data info for register-file.
   assign wb2regfile_o.result = ex2wb_i.instr == INSTR_XFIRLW   ? xif_mem_result_i.mem_result.rdata : ex2wb_i.result;
   assign wb2regfile_o.write  = ex2wb_i.instr == INSTR_XFIRLW || ex2wb_i.instr == INSTR_XFIRDOTP ? commit : 1'b0;
   assign wb2regfile_o.rd     = ex2wb_i.rd;

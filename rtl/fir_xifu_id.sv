@@ -31,13 +31,34 @@ module fir_xifu_id
   input  logic ready_i
 );
 
-  // Back-prop ready
+  // Back-prop ready: if the EX stage is ready to accept a new instruction,
+  // then the XIFU can accept a new instruction to be issued/decoded.
   assign xif_issue_i.issue_ready = ready_i;
 
-  // decode XIFU-supported instructions
+  // Decode XIFU-supported instructions: in this example, we support three
+  // different instructions:
+  //  - `xfirlw xrd, Imm(rs1)` is an I-format instruction moving a word from
+  //    the address given by a base stored in the `rs1` register (in the 
+  //    core reg. file) + the offset `Imm` into the XIFU register `xrd`; this
+  //    instruction also auto-increments `rs1` by 4.
+  //  - `xfirsw Imm(rs1), xrs2` is an S-format instruction moving a word from
+  //    the XIFU register `xrs2` into the address given by a base stored in
+  //    the `rs1` register (in the core reg. file) + the offset `Imm`; this
+  //    instruction also auto-increments `rs1` by 4.
+  //  - `xfirdotp xrd, xrs1, xrs2` is an R-format instruction taking two words
+  //    from the `xrs1`, `xrs2` XIFU registers and performing the dot-product
+  //    between them considering them as int16 data vectors, and adding this
+  //    to the value stored in `xrd`. The result is stored in `xrd` in int32
+  //    format.
+  // The following procedural block responds to the XIF issue request by
+  //  1) decoding the instruction and ascertaining if it is supported or not;
+  //     in that case, it is not accepted and the core raises an illegal
+  //     instruction exception;
+  //  2) reporting back whether the instruction is a load/store, whether it
+  //     writes back to a core register, and other info (e.g., whether it
+  //     can raise an exception), which here are omitted for simplicity.
   logic valid_instr;
   fir_xifu_instr_t instr;
-
   always_comb
   begin
     xif_issue_i.issue_resp = '0;
@@ -75,13 +96,18 @@ module fir_xifu_id
     end
   end
 
-  // Save issue state in controller scoreboard
+  // Save issue state in controller scoreboard: the XIFU needs to
+  // keep track of instructions issued and retired as the core needs
+  // to commit them via the XIF commit interface before they change the
+  // architectural state. The controller contains a small scoreboard
+  // designed for this purpose.
   assign id2ctrl_o.issue = valid_instr;
   assign id2ctrl_o.id    = xif_issue_i.issue_req.id;
 
-  // ID/EX pipe stage
+  // ID/EX pipe stage: all the instruction information is saved and
+  // passed along the pipeline. Contrarily to the CV32E40X pipeline, which
+  // uses a valid/ready handshake, in this case we use only a ready signal.
   fir_xifu_id2ex_t id2ex_d;
-
   always_comb
   begin
     id2ex_d = '0;

@@ -12,6 +12,13 @@
  * CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  *
+ * The FIR eXtension Interface Functional Unit (XIFU) is an example coprocessor
+ * for teaching purposes using the CV-XIF interface, meant to be connected
+ * primarily to CV32E40X.
+ * It is organized in a "parallel" pipeline with ID, EX, WB stages (IF is missing
+ * because the CV32E40X core does not currently support compressed XIF
+ * instructions), plus a register file and a simple controller with a small
+ * instruction scoreboard.
  */
 
 module fir_xifu_top

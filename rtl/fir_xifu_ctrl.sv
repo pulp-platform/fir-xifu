@@ -84,6 +84,10 @@ module fir_xifu_ctrl
   assign ctrl2wb_o.kill   = kill_q;
 
   // commit can be combinational in EX
+  // TODO: check whether this is true; according to the architectural diagram
+  //       in the XIF specs, commit arrives late in the ID stage, not early in the
+  //       EX stage. This might impose a structural hazard in all store ops to
+  //       avoid timing issues, which is quite annoying.
   assign ctrl2ex_o.commit = valid_d | valid_q & ~kill_q & ~kill_d;
 
 endmodule /* fir_xifu_ctrl */
