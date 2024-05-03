@@ -23,10 +23,10 @@ module fir_xifu_ctrl
 
   cv32e40x_if_xif.coproc_commit     xif_commit_i,
 
+  input  fir_xifu_id2ctrl_t id2ctrl_i,
+  output fir_xifu_ctrl2ex_t ctrl2ex_o,
   input  fir_xifu_wb2ctrl_t wb2ctrl_i,
-  output fir_xifu_ctrl2wb_t ctrl2wb_o,
-
-  input  fir_xifu_id2ctrl_t id2ctrl_i
+  output fir_xifu_ctrl2wb_t ctrl2wb_o
 );
 
   // Mask commits that are repeated multiple times for the same ID.
@@ -78,6 +78,9 @@ module fir_xifu_ctrl
     end
   end
 
+  assign ctrl2ex_o.issue  = issue_q;
+  assign ctrl2ex_o.commit = valid_q;
+  assign ctrl2ex_o.kill   = kill_q;
   assign ctrl2wb_o.issue  = issue_q;
   assign ctrl2wb_o.commit = valid_q;
   assign ctrl2wb_o.kill   = kill_q;
