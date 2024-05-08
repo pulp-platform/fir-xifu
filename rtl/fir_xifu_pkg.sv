@@ -87,7 +87,7 @@ package fir_xifu_pkg;
     logic [11:0] offset;
     logic [4:0]  rs1;
     logic [4:0]  rs2;
-    logic [4:0]  rd;
+    logic [4:0]  rd; // also right_shift
     logic [X_ID_WIDTH-1:0] id;
   } fir_xifu_id2ex_t;
     

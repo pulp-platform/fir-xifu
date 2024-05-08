@@ -39,12 +39,14 @@ module fir_xifu_id
   // different instructions:
   //  - `xfirlw xrd, Imm(rs1)` is an I-format instruction moving a word from
   //    the address given by a base stored in the `rs1` register (in the 
-  //    core reg. file) + the offset `Imm` into the XIFU register `xrd`; this
-  //    instruction also auto-increments `rs1` by 4.
-  //  - `xfirsw Imm(rs1), xrs2` is an S-format instruction moving a word from
-  //    the XIFU register `xrs2` into the address given by a base stored in
-  //    the `rs1` register (in the core reg. file) + the offset `Imm`; this
-  //    instruction also auto-increments `rs1` by 4.
+  //    core reg. file) into the XIFU register `xrd`; this instruction also
+  //    auto-increments `rs1` by the offset `Imm`.
+  //  - `xfirsw Imm(rs1), xrs2` is an S-format instruction right-shifting
+  //    a word from the XIFU register `xrs2` by `Imm[4:0]` (5 LSB of the
+  //    immediate) and moving it into the address given by a base stored in
+  //    the `rs1` register (in the core reg. file); this instruction also
+  //    auto-increments `rs1` by the offset `Imm[11:5]` (7 MSB of the
+  //    immediate).
   //  - `xfirdotp xrd, xrs1, xrs2` is an R-format instruction taking two words
   //    from the `xrs1`, `xrs2` XIFU registers and performing the dot-product
   //    between them considering them as int16 data vectors, and adding this
