@@ -41,17 +41,17 @@ module fir_xifu_top
 
   logic clear;
 
-  fir_xifu_ex2regfile_t ex2regfile;
-  fir_xifu_regfile2ex_t regfile2ex;
-  fir_xifu_wb2regfile_t wb2regfile;
+  ex2regfile_t ex2regfile;
+  regfile2ex_t regfile2ex;
+  wb2regfile_t wb2regfile;
 
-  fir_xifu_id2ex_t id2ex;
-  fir_xifu_ex2wb_t ex2wb;
+  id2ex_t id2ex;
+  ex2wb_t ex2wb;
 
-  fir_xifu_id2ctrl_t id2ctrl;
-  fir_xifu_ctrl2ex_t ctrl2ex;
-  fir_xifu_wb2ctrl_t wb2ctrl;
-  fir_xifu_ctrl2wb_t ctrl2wb;
+  id2ctrl_t id2ctrl;
+  ctrl2ex_t ctrl2ex;
+  wb2ctrl_t wb2ctrl;
+  ctrl2wb_t ctrl2wb;
 
   logic wb_ready, ex_ready;
 

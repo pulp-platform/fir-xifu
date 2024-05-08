@@ -24,9 +24,9 @@ module fir_xifu_id
 
   cv32e40x_if_xif.coproc_issue xif_issue_i,
   
-  output fir_xifu_id2ex_t   id2ex_o,
+  output id2ex_t   id2ex_o,
 
-  output fir_xifu_id2ctrl_t id2ctrl_o,
+  output id2ctrl_t id2ctrl_o,
 
   input  logic ready_i
 );
@@ -60,7 +60,7 @@ module fir_xifu_id
   //     writes back to a core register, and other info (e.g., whether it
   //     can raise an exception), which here are omitted for simplicity.
   logic valid_instr;
-  fir_xifu_instr_t instr;
+  instr_t instr;
   always_comb
   begin
     xif_issue_i.issue_resp = '0;
@@ -109,7 +109,7 @@ module fir_xifu_id
   // ID/EX pipe stage: all the instruction information is saved and
   // passed along the pipeline. Contrarily to the CV32E40X pipeline, which
   // uses a valid/ready handshake, in this case we use only a ready signal.
-  fir_xifu_id2ex_t id2ex_d;
+  id2ex_t id2ex_d;
   always_comb
   begin
     id2ex_d = '0;

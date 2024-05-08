@@ -24,13 +24,13 @@ module fir_xifu_ex
 
   cv32e40x_if_xif.coproc_mem    xif_mem_o,
   
-  input  fir_xifu_id2ex_t   id2ex_i,
-  output fir_xifu_ex2wb_t   ex2wb_o,
+  input  id2ex_t   id2ex_i,
+  output ex2wb_t   ex2wb_o,
 
-  output fir_xifu_ex2regfile_t ex2regfile_o,
-  input  fir_xifu_regfile2ex_t regfile2ex_i,
+  output ex2regfile_t ex2regfile_o,
+  input  regfile2ex_t regfile2ex_i,
 
-  input  fir_xifu_ctrl2ex_t ctrl2ex_i,
+  input  ctrl2ex_t ctrl2ex_i,
 
   input  logic ready_i,
   output logic ready_o
@@ -79,7 +79,7 @@ module fir_xifu_ex
   assign dotp_result = (dotp_op_a[0] * dotp_op_b[0] + dotp_op_a[1] * dotp_op_b[1] * 32'sh1) + dotp_op_c;
 
   // EX/WB pipe stage
-  fir_xifu_ex2wb_t ex2wb_d;
+  ex2wb_t ex2wb_d;
 
   always_comb
   begin
