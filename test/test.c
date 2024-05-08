@@ -46,7 +46,7 @@ int main()
   asm volatile("addi t2, %0, 0" ::"r"(pz));
 
   // XFIRLW xr0, 0(t0)
-  asm volatile(".word (0x000     << 20) /* imm    */ | \
+  asm volatile(".word (0x004     << 20) /* imm    */ | \
                       (0b00101   << 15) /* rs1    */ | \
                       (0b000     << 12) /* funct3 */ | \
                       (0b00000   <<  7) /* rd     */ | \
@@ -68,11 +68,11 @@ int main()
                       (0b1011011 <<  0) /* opcode */   \n");
 
   // XFIRSW 0(t2), xr2
-  asm volatile(".word (0x00      << 25) /* imm_hi */ | \
+  asm volatile(".word (0x04      << 25) /* imm_hi */ | \
                       (0b00010   << 20) /* rs2    */ | \
                       (0b00111   << 15) /* rs1    */ | \
                       (0b001     << 12) /* funct3 */ | \
-                      (0b00000   <<  7) /* imm_lo */ | \
+                      (0b00005   <<  7) /* imm_lo */ | \
                       (0b1011011 <<  0) /* opcode */   \n");
 
   printf("Hello %08x!\n", z);

@@ -79,62 +79,62 @@ package fir_xifu_pkg;
     INSTR_XFIRSW   = 2'b11,
     INSTR_XFIRDOTP = 2'b01,
     INSTR_INVALID  = 2'b00
-  } fir_xifu_instr_t;
+  } instr_t;
     
   typedef struct packed {
-    fir_xifu_instr_t instr;
+    instr_t instr;
     logic [31:0] base;
     logic [11:0] offset;
     logic [4:0]  rs1;
     logic [4:0]  rs2;
     logic [4:0]  rd; // also right_shift
     logic [X_ID_WIDTH-1:0] id;
-  } fir_xifu_id2ex_t;
+  } id2ex_t;
     
   typedef struct packed {
-    fir_xifu_instr_t instr;
+    instr_t instr;
     logic [31:0] result;
     logic [4:0]  rs1;
     logic [4:0]  rs2;
     logic [4:0]  rd;
     logic [X_ID_WIDTH-1:0] id;
-  } fir_xifu_ex2wb_t;
+  } ex2wb_t;
 
   typedef struct packed {
     logic [4:0]  rs1;
     logic [4:0]  rs2;
     logic [4:0]  rd;
-  } fir_xifu_ex2regfile_t;
+  } ex2regfile_t;
 
   typedef struct packed {
     logic [31:0] op_a;
     logic [31:0] op_b;
     logic [31:0] op_c;
-  } fir_xifu_regfile2ex_t;
+  } regfile2ex_t;
 
   typedef struct packed {
     logic [31:0] result;
     logic [4:0]  rd;
     logic        write;
-  } fir_xifu_wb2regfile_t;
+  } wb2regfile_t;
 
   typedef struct packed {
     logic                  issue;
     logic [X_ID_WIDTH-1:0] id;
-  } fir_xifu_id2ctrl_t;
+  } id2ctrl_t;
 
   typedef struct packed {
     logic [X_ID_MAX-1:0] commit;
-  } fir_xifu_ctrl2ex_t;
+  } ctrl2ex_t;
 
   typedef struct packed {
     logic [X_ID_MAX-1:0] clear;
-  } fir_xifu_wb2ctrl_t;
+  } wb2ctrl_t;
 
   typedef struct packed {
     logic [X_ID_MAX-1:0] issue;
     logic [X_ID_MAX-1:0] commit;
     logic [X_ID_MAX-1:0] kill;
-  } fir_xifu_ctrl2wb_t;
+  } ctrl2wb_t;
 
 endpackage /* fir_xifu_pkg */

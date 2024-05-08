@@ -24,12 +24,12 @@ module fir_xifu_wb
   cv32e40x_if_xif.coproc_mem_result xif_mem_result_i,
   cv32e40x_if_xif.coproc_result     xif_result_o,
   
-  input  fir_xifu_ex2wb_t   ex2wb_i,
+  input  ex2wb_t   ex2wb_i,
 
-  output fir_xifu_wb2regfile_t wb2regfile_o,
+  output wb2regfile_t wb2regfile_o,
 
-  output fir_xifu_wb2ctrl_t wb2ctrl_o,
-  input  fir_xifu_ctrl2wb_t ctrl2wb_i,
+  output wb2ctrl_t wb2ctrl_o,
+  input  ctrl2wb_t ctrl2wb_i,
 
   output logic kill_o,
   output logic ready_o
