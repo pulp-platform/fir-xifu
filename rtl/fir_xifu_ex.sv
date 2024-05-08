@@ -40,8 +40,8 @@ module fir_xifu_ex
   // need to compute the base+offset (with sign extension for the latter)
   // and also the updated address using postincrement.
   logic [31:0] next_addr, curr_addr; 
-  assign curr_addr = id2ex_i.base + signed'(id2ex_i.offset + 32'sh0);
-  assign next_addr = curr_addr + 32'h4;
+  assign curr_addr = id2ex_i.base;
+  assign next_addr = curr_addr + signed'(id2ex_i.offset + 32'sh0);
   
   // Issue memory transaction (load or store): currently this is issued
   // immediately for loads and only if a commit signal has arrived for
