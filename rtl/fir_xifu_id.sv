@@ -110,13 +110,19 @@ module fir_xifu_id
   // passed along the pipeline. Contrarily to the CV32E40X pipeline, which
   // uses a valid/ready handshake, in this case we use only a ready signal.
   id2ex_t id2ex_d;
+  logic [11:0] s_immediate;
+  always_comb
+  begin
+    s_immediate = xifu_get_immediate_S(xif_issue_i.issue_req.instr);
+  end
+
   always_comb
   begin
     id2ex_d = '0;
     if(instr != INSTR_INVALID) begin
       id2ex_d.base = xif_issue_i.issue_req.rs[0];
       if(instr == INSTR_XFIRSW) begin
-        id2ex_d.offset <= xifu_get_immediate_S(xif_issue_i.issue_req.instr)[11:5] * 32'sh1; // * 32'sh1 == sign-extend
+        id2ex_d.offset <= s_immediate[11:5] * 32'sh1; // * 32'sh1 == sign-extend
       end
       else begin
         id2ex_d.offset <= xifu_get_immediate_I(xif_issue_i.issue_req.instr);
