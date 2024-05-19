@@ -122,10 +122,10 @@ module fir_xifu_id
     if(instr != INSTR_INVALID) begin
       id2ex_d.base = xif_issue_i.issue_req.rs[0];
       if(instr == INSTR_XFIRSW) begin
-        id2ex_d.offset <= s_immediate[11:5] * 32'sh1; // * 32'sh1 == sign-extend
+        id2ex_d.offset = s_immediate[11:5] * 32'sh1; // * 32'sh1 == sign-extend
       end
       else begin
-        id2ex_d.offset <= xifu_get_immediate_I(xif_issue_i.issue_req.instr);
+        id2ex_d.offset = xifu_get_immediate_I(xif_issue_i.issue_req.instr);
       end
       id2ex_d.instr = instr;
       id2ex_d.rs1 = xifu_get_rs1(xif_issue_i.issue_req.instr);

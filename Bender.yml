@@ -4,7 +4,7 @@ package:
     - "Francesco Conti <f.conti@unibo.it>"
 
 dependencies:
-  cv32e40x:    { git: "git@github.com:pulp-platform/cv32e40x.git", rev: baba1eeb3b845306c45be714f677ff786753f136 }
+  cv32e40x:    { git: "git@github.com:pulp-platform/cv32e40x.git", rev: xifu-v0.1.0 }
 
 sources:
   - include_dirs:
