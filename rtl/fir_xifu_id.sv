@@ -28,8 +28,14 @@ module fir_xifu_id
 
   output id2ctrl_t id2ctrl_o,
 
+  input  wb_fwd_t wb_fwd_i,
+
   input  logic ready_i
 );
+
+  // Forwarding logic (TODO: move in controller?)
+  logic forwarding;
+  assign forwarding = wb_fwd_i.we & (wb_fwd_i.rd == xifu_get_rs1(xif_issue_i.issue_req.instr));
 
   // Back-prop ready: if the EX stage is ready to accept a new instruction,
   // then the XIFU can accept a new instruction to be issued/decoded.
@@ -120,7 +126,7 @@ module fir_xifu_id
   begin
     id2ex_d = '0;
     if(instr != INSTR_INVALID) begin
-      id2ex_d.base = xif_issue_i.issue_req.rs[0];
+      id2ex_d.base = ~forwarding ? xif_issue_i.issue_req.rs[0] : wb_fwd_i.result;
       if(instr == INSTR_XFIRSW) begin
         id2ex_d.offset = s_immediate[11:5] * 32'sh1; // * 32'sh1 == sign-extend
       end

@@ -53,6 +53,8 @@ module fir_xifu_top
   wb2ctrl_t wb2ctrl;
   ctrl2wb_t ctrl2wb;
 
+  wb_fwd_t wb_fwd;
+
   logic wb_ready, ex_ready;
 
   // CV32E40X does not currently support compressed XIF instructions
@@ -65,6 +67,7 @@ module fir_xifu_top
     .clear_i          ( clear       ),
     .xif_issue_i      ( xif_issue_i ),
     .id2ex_o          ( id2ex       ),
+    .wb_fwd_i         ( wb_fwd      ),
     .id2ctrl_o        ( id2ctrl     ),
     .ready_i          ( ex_ready    )
   );
@@ -79,6 +82,7 @@ module fir_xifu_top
     .ex2regfile_o     ( ex2regfile ),
     .regfile2ex_i     ( regfile2ex ),
     .ctrl2ex_i        ( ctrl2ex    ),
+    .wb_fwd_i         ( wb_fwd     ),
     .ready_o          ( ex_ready   ),
     .ready_i          ( wb_ready   )
   );
@@ -92,6 +96,7 @@ module fir_xifu_top
     .wb2regfile_o     ( wb2regfile       ),
     .wb2ctrl_o        ( wb2ctrl          ),
     .ctrl2wb_i        ( ctrl2wb          ),
+    .wb_fwd_o         ( wb_fwd           ),
     .ready_o          ( wb_ready         ),
     .kill_o           ( clear            )
   );

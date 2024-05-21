@@ -32,15 +32,21 @@ module fir_xifu_ex
 
   input  ctrl2ex_t ctrl2ex_i,
 
+  input  wb_fwd_t wb_fwd_i,
+
   input  logic ready_i,
   output logic ready_o
 );
+
+  // Forwarding logic (TODO: move in controller?)
+  logic forwarding;
+  assign forwarding = wb_fwd_i.we & (wb_fwd_i.rd == id2ex_i.rs1);
 
   // Compute addresses: this is used for load/store operations, which
   // need to compute the base+offset (with sign extension for the latter)
   // and also the updated address using postincrement.
   logic [31:0] next_addr, curr_addr; 
-  assign curr_addr = id2ex_i.base;
+  assign curr_addr = ~forwarding ? id2ex_i.base : wb_fwd_i.result;
   assign next_addr = curr_addr + signed'(id2ex_i.offset + 32'sh0);
   
   // Issue memory transaction (load or store): currently this is issued

@@ -101,6 +101,12 @@ package fir_xifu_pkg;
   } ex2wb_t;
 
   typedef struct packed {
+    logic [4:0]  rd;
+    logic [31:0] result;
+    logic       we;
+  } wb_fwd_t;
+
+  typedef struct packed {
     logic [4:0]  rs1;
     logic [4:0]  rs2;
     logic [4:0]  rd;

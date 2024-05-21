@@ -31,6 +31,8 @@ module fir_xifu_wb
   output wb2ctrl_t wb2ctrl_o,
   input  ctrl2wb_t ctrl2wb_i,
 
+  output wb_fwd_t wb_fwd_o,
+
   output logic kill_o,
   output logic ready_o
 );
@@ -92,10 +94,15 @@ module fir_xifu_wb
       wb2ctrl_o.clear[ex2wb_i.id] = commit;
     end
     xif_result_o.result.id    = ex2wb_i.id;
-    xif_result_o.result.data  = ex2wb_i.result; // autoincrement
+    xif_result_o.result.data  = ex2wb_i.result; // post-increment
     xif_result_o.result.rd    = ex2wb_i.rs1;
     xif_result_o.result.we    = (ex2wb_i.instr == INSTR_XFIRSW || ex2wb_i.instr == INSTR_XFIRLW);
   end
+
+  // Forward rd and result to EX stage
+  assign wb_fwd_o.rd     = xif_result_o.result.rd;
+  assign wb_fwd_o.result = xif_result_o.result.data;
+  assign wb_fwd_o.we     = xif_result_o.result.we;
 
   // Back-prop ready: the only condition in which we are not ready is when the current id is issued but not committed yet
   assign ready_o = (issue & ~commit) && ex2wb_i.instr != INSTR_INVALID ? 1'b0 : 1'b1;
