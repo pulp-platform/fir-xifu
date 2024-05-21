@@ -78,11 +78,14 @@ module fir_xifu_ex
   // extra logic layer. Notice the usage of a signed neutral constant (32'sh1) to
   // make sure that the sign-extensions are performed properly.
   logic signed [1:0][15:0] dotp_op_a, dotp_op_b;
+  logic signed [1:0][31:0] dotp_prod;
   logic signed [31:0] dotp_op_c, dotp_result;
   assign dotp_op_a = id2ex_i.instr == INSTR_XFIRDOTP ? signed'(regfile2ex_i.op_a) : '0;
   assign dotp_op_b = id2ex_i.instr == INSTR_XFIRDOTP ? signed'(regfile2ex_i.op_b) : '0;
   assign dotp_op_c = id2ex_i.instr == INSTR_XFIRDOTP ? signed'(regfile2ex_i.op_c) : '0;
-  assign dotp_result = (dotp_op_a[0] * dotp_op_b[0] + dotp_op_a[1] * dotp_op_b[1] * 32'sh1) + dotp_op_c;
+  assign dotp_prod[0] = (signed'(dotp_op_a[0]) * 32'sh1) * (signed'(dotp_op_b[0]) * 32'sh1);
+  assign dotp_prod[1] = (signed'(dotp_op_a[1]) * 32'sh1) * (signed'(dotp_op_b[1]) * 32'sh1);
+  assign dotp_result = signed'(dotp_prod[0]) + signed'(dotp_prod[1]) + dotp_op_c;
 
   // EX/WB pipe stage
   ex2wb_t ex2wb_d;
