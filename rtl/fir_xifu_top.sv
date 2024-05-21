@@ -106,7 +106,9 @@ module fir_xifu_top
     .ctrl2wb_o        ( ctrl2wb      )
   );
   
-  fir_xifu_regfile i_regfile (
+  fir_xifu_regfile #(
+    .NB_REGS ( NB_REGS )
+  )i_regfile (
     .clk_i            ( clk_i      ),
     .rst_ni           ( rst_ni     ),
     .ex2regfile_i     ( ex2regfile ),
