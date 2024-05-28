@@ -38,7 +38,7 @@ module fir_xifu_ex
   output logic ready_o
 );
 
-  // Forwarding logic (TODO: move in controller?)
+  // Forwarding logic
   logic forwarding;
   assign forwarding = wb_fwd_i.we & (wb_fwd_i.rd == id2ex_i.rs1);
 
@@ -47,7 +47,14 @@ module fir_xifu_ex
   // and also the updated address using postincrement.
   logic [31:0] next_addr, curr_addr; 
   assign curr_addr = ~forwarding ? id2ex_i.base : wb_fwd_i.result;
-  assign next_addr = curr_addr + signed'(id2ex_i.offset + 32'sh0);
+  assign next_addr = curr_addr; // placeholder: what should be added to this to calculate the real next_addr
+                                // i.e., this should be used to implement the address auto-increment
+                                // be careful about sign-extensions!
+
+  // Define right-shift amount for stores
+  logic [4:0] right_shift;
+  assign right_shift = '0; // placeholder: where is the right-shift taken from when it is used? think of
+                           // which instruction bits are relevant
   
   // Issue memory transaction (load or store): currently this is issued
   // immediately for loads and only if a commit signal has arrived for
@@ -57,18 +64,24 @@ module fir_xifu_ex
   begin
     xif_mem_o.mem_req   = '0;
     xif_mem_o.mem_valid = '0;
-    if(id2ex_i.instr == INSTR_XFIRSW || id2ex_i.instr == INSTR_XFIRLW) begin
-      if(id2ex_i.instr == INSTR_XFIRSW)
-        xif_mem_o.mem_valid = ctrl2ex_i.commit[id2ex_i.id]; // do not issue memory requests for non-committed store
-      else
-        xif_mem_o.mem_valid = 1'b1;
+    if(0) begin // placeholder condition: this if should be active with instructions that use
+                // CV32E40X's load/store unit
+      // placeholder: the mem_req and mem_valid fields should be filled using information from
+      //              1) the ID/EX pipe stage, 2) the curr_addr calculated above, 3) one operand
+      //              from the register file.
+      //              We leave a few hints...
+      // keep the next line, but only in case of a store
+      xif_mem_o.mem_valid = ctrl2ex_i.commit[id2ex_i.id]; // do not issue memory requests for non-committed store
+      // keep the following lines
       xif_mem_o.mem_req.id    = id2ex_i.id;
-      xif_mem_o.mem_req.addr  = curr_addr;
-      xif_mem_o.mem_req.we    = id2ex_i.instr == INSTR_XFIRSW;
+      xif_mem_o.mem_req.last  = 1'b1;
       xif_mem_o.mem_req.size  = 3'b100;
       xif_mem_o.mem_req.be    = 4'b1111;
-      xif_mem_o.mem_req.wdata = (regfile2ex_i.op_b >>> id2ex_i.rd) * 32'sh1; // the right-shift bits are encoded in Imm[4:0] in S-type, same as RD in R-type
-      xif_mem_o.mem_req.last  = 1'b1;
+      // placeholder: fix the following lines
+      xif_mem_o.mem_req.addr  = '0; // what should be the address targeted by the LSU?
+      xif_mem_o.mem_req.we    = '0; // when should we issue a store?
+      xif_mem_o.mem_req.wdata = '0; // what data should we write back? think of the specifications for the store-type instruction
+                                    // Consider that regfile2ex_i.op_a, op_b, op_c correspond to the registers addressed by rs1, rs2, rd
     end
   end
 
@@ -80,12 +93,29 @@ module fir_xifu_ex
   logic signed [1:0][15:0] dotp_op_a, dotp_op_b;
   logic signed [1:0][31:0] dotp_prod;
   logic signed [31:0] dotp_op_c, dotp_result;
-  assign dotp_op_a = id2ex_i.instr == INSTR_XFIRDOTP ? signed'(regfile2ex_i.op_a) : '0;
-  assign dotp_op_b = id2ex_i.instr == INSTR_XFIRDOTP ? signed'(regfile2ex_i.op_b) : '0;
-  assign dotp_op_c = id2ex_i.instr == INSTR_XFIRDOTP ? signed'(regfile2ex_i.op_c) : '0;
-  assign dotp_prod[0] = (signed'(dotp_op_a[0]) * 32'sh1) * (signed'(dotp_op_b[0]) * 32'sh1);
-  assign dotp_prod[1] = (signed'(dotp_op_a[1]) * 32'sh1) * (signed'(dotp_op_b[1]) * 32'sh1);
-  assign dotp_result = signed'(dotp_prod[0]) + signed'(dotp_prod[1]) + dotp_op_c;
+  // placeholders: connect dotp inputs to operands from register file
+  //               remember that regfile2ex_i.op_a/b/c correnspond to rs1/rs2/rd
+  assign dotp_op_a = '0; // placeholder: connect dotp inputs to operands from register file
+  assign dotp_op_b = '0; // placeholder: connect dotp inputs to operands from register file
+  assign dotp_op_c = '0; // placeholder: connect dotp inputs to operands from register file
+  // placeholders: construct the products that will sum into a single dot-product. Be extra
+  //               careful about sign extension: remember that in SystemVerilog most operations
+  //               return unsigned values by default, e.g., if you have
+  //                   logic signed [1:0][15:0] foo;
+  //               then extracting an element from foo, e.g., foo[0], will return an unsigned
+  //               value; also extracting a range, e.g., foo[1:0], will return an unsigned
+  //               vector! You need to use explicit castings:
+  //                   signed'(foo[0])
+  //               Moreover, sign-extension is performed only based on the right-hand
+  //               width of an assignment, so if
+  //                   logic signed [63:0] long; logic signed [15:0] short_a, short_b;
+  //                   assign long = short_a + short_b;
+  //               the sign-extensions will NOT be performed. The simplest solution is to use
+  //               a neutral element to force sign-extension:
+  //                   assign long = 64'sh0 + short_a + short_b
+  assign dotp_prod[0] = '0; // placeholder: sum the LSB products from rs1, rs2 
+  assign dotp_prod[1] = '0; // placeholder: sum the MSB products from rs1, rs2
+  assign dotp_result = '0; // placeholder: sum the products and the incoming accumulator value from rd
 
   // EX/WB pipe stage
   ex2wb_t ex2wb_d;
@@ -93,11 +123,13 @@ module fir_xifu_ex
   always_comb
   begin
     ex2wb_d = '0;
-    ex2wb_d.result = id2ex_i.instr == INSTR_XFIRDOTP ? dotp_result : next_addr;
-    ex2wb_d.rs1    = id2ex_i.rs1;
-    ex2wb_d.rs2    = id2ex_i.rs2;
-    ex2wb_d.rd     = id2ex_i.rd;
-    ex2wb_d.instr  = id2ex_i.instr;
+    ex2wb_d.result = '0; // placeholder: result hosts the result to be written back to a register in
+                         //              the XIFU or CV32E40X register file. What should it be, given
+                         //              a certain instruction?
+    ex2wb_d.rs1    = '0; // placeholder: what should be pass here through the EX/WB pipe stage?
+    ex2wb_d.rs2    = '0; // placeholder: what should be pass here through the EX/WB pipe stage?
+    ex2wb_d.rd     = '0; // placeholder: what should be pass here through the EX/WB pipe stage?
+    ex2wb_d.instr  = '0; // placeholder: what should be pass here through the EX/WB pipe stage?
     ex2wb_d.id     = id2ex_i.id;
   end
 
@@ -118,9 +150,9 @@ module fir_xifu_ex
   always_comb
   begin
     ex2regfile_o = '0;
-    ex2regfile_o.rs1 = id2ex_i.rs1;
-    ex2regfile_o.rs2 = id2ex_i.rs2;
-    ex2regfile_o.rd  = id2ex_i.rd;
+    ex2regfile_o.rs1 = '0; // placeholder: what should we pass here towards the XIFU regfile?
+    ex2regfile_o.rs2 = '0; // placeholder: what should we pass here towards the XIFU regfile?
+    ex2regfile_o.rd  = '0; // placeholder: what should we pass here towards the XIFU regfile?
   end
 
   // backprop ready

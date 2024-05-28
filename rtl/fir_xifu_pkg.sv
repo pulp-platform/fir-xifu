@@ -20,17 +20,17 @@ package fir_xifu_pkg;
   parameter int unsigned X_ID_WIDTH = 4;
   parameter int unsigned X_ID_MAX   = 2**X_ID_WIDTH;
 
-  // inst[4:2]=110 [6:5]=10 [1:0]=11
-  parameter logic [6:0] INSTR_OPCODE = 7'b1011011;
+  // placeholder for actual opcode
+  parameter logic [6:0] INSTR_OPCODE = 7'b0;
 
-  // R type
-  parameter logic [2:0] INSTR_XFIRDOTP_FUNCT3 = 3'b010;
+  // placeholder for xfirdotp funct3
+  parameter logic [2:0] INSTR_XFIRDOTP_FUNCT3 = 3'b000;
 
-  // I type
+  // placeholder for xfirlw funct3
   parameter logic [2:0] INSTR_XFIRLW_FUNCT3 = 3'b000;
 
-  // S type
-  parameter logic [2:0] INSTR_XFIRSW_FUNCT3 = 3'b001;
+  // placeholder for xfirsw funct3
+  parameter logic [2:0] INSTR_XFIRSW_FUNCT3 = 3'b000;
 
   function automatic logic [2:0] xifu_get_funct3(logic [31:0] in);
     logic [2:0] out;

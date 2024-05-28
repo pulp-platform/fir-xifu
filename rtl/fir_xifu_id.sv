@@ -33,7 +33,7 @@ module fir_xifu_id
   input  logic ready_i
 );
 
-  // Forwarding logic (TODO: move in controller?)
+  // Forwarding logic
   logic forwarding;
   assign forwarding = wb_fwd_i.we & (wb_fwd_i.rd == xifu_get_rs1(xif_issue_i.issue_req.instr));
 
@@ -74,27 +74,15 @@ module fir_xifu_id
     instr = INSTR_INVALID;
     if(xif_issue_i.issue_valid & (xifu_get_opcode(xif_issue_i.issue_req.instr) == INSTR_OPCODE)) begin
       unique case(xifu_get_funct3(xif_issue_i.issue_req.instr))
+        // placeholder: is this the only instruction we should check?
         INSTR_XFIRLW_FUNCT3 : begin
-          xif_issue_i.issue_resp.accept = 1'b1;
-          xif_issue_i.issue_resp.writeback = 1'b1;
-          xif_issue_i.issue_resp.loadstore = 1'b1;
+          xif_issue_i.issue_resp.accept = 1'b0; // placeholder: should this instruction be accepted?
+          xif_issue_i.issue_resp.writeback = 1'b0; // placeholder: should this instruction be accepted?
+          xif_issue_i.issue_resp.loadstore = 1'b0;
           valid_instr = 1'b1;
           instr = INSTR_XFIRLW;
         end
-        INSTR_XFIRSW_FUNCT3 : begin
-          xif_issue_i.issue_resp.accept = 1'b1;
-          xif_issue_i.issue_resp.writeback = 1'b1;
-          xif_issue_i.issue_resp.loadstore = 1'b1;
-          valid_instr = 1'b1;
-          instr = INSTR_XFIRSW;
-        end
-        INSTR_XFIRDOTP_FUNCT3 : begin
-          xif_issue_i.issue_resp.accept = 1'b1;
-          xif_issue_i.issue_resp.writeback = 1'b0;
-          xif_issue_i.issue_resp.loadstore = 1'b0;
-          valid_instr = 1'b1;
-          instr = INSTR_XFIRDOTP;
-        end
+        // placeholder: should we add other instructions to be accepted by the XIFU?
         default : begin
           xif_issue_i.issue_resp = '0;
           valid_instr = 1'b0;
@@ -127,16 +115,13 @@ module fir_xifu_id
     id2ex_d = '0;
     if(instr != INSTR_INVALID) begin
       id2ex_d.base = ~forwarding ? xif_issue_i.issue_req.rs[0] : wb_fwd_i.result;
-      if(instr == INSTR_XFIRSW) begin
-        id2ex_d.offset = s_immediate[11:5] * 32'sh1; // * 32'sh1 == sign-extend
-      end
-      else begin
-        id2ex_d.offset = xifu_get_immediate_I(xif_issue_i.issue_req.instr);
-      end
+      id2ex_d.offset = '0; // placeholder: offset passed to EX stage should be different
+                           // in the case of xfirsw than it is for xfirlw.
+                           // also remember sign extension!
       id2ex_d.instr = instr;
-      id2ex_d.rs1 = xifu_get_rs1(xif_issue_i.issue_req.instr);
-      id2ex_d.rs2 = xifu_get_rs2(xif_issue_i.issue_req.instr);
-      id2ex_d.rd  = xifu_get_rd(xif_issue_i.issue_req.instr);
+      id2ex_d.rs1 = '0; // placeholder: pass to EX stage the correct rs1 (check the package: is there a useful function there?)
+      id2ex_d.rs2 = '0; // placeholder: pass to EX stage the correct rs2 (check the package: is there a useful function there?)
+      id2ex_d.rd  = '0; // placeholder: pass to EX stage the correct rd  (check the package: is there a useful function there?)
       id2ex_d.id  = xif_issue_i.issue_req.id;
     end
   end

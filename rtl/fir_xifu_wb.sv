@@ -47,9 +47,13 @@ module fir_xifu_wb
   assign kill_o = ctrl2wb_i.kill  [ex2wb_i.id];
   
   // Set write-back data info for register-file.
-  assign wb2regfile_o.result = ex2wb_i.instr == INSTR_XFIRLW   ? xif_mem_result_i.mem_result.rdata : ex2wb_i.result;
-  assign wb2regfile_o.write  = ex2wb_i.instr == INSTR_XFIRLW || ex2wb_i.instr == INSTR_XFIRDOTP ? commit : 1'b0;
-  assign wb2regfile_o.rd     = ex2wb_i.rd;
+  assign wb2regfile_o.result = '0; // placeholder: what should be written back to XIFU regfile, and under which conditions?
+                                   //              this depends on ex2wb_i.instr...
+  assign wb2regfile_o.write  = commit; // placeholder: right now, we write back every time we commit: is that right? do all 
+                                       //              xfir instructions require to write back something to XIFU register file?
+                                       //              you should keep this to 'commit', not 1'b1, in the cases where we want
+                                       //              to actually write back :)
+  assign wb2regfile_o.rd     = '0; // placeholder: what register should we target for write-back?
 
   // Save mem_result rdata
   logic [31:0] mem_result_rdata_q;
@@ -94,9 +98,10 @@ module fir_xifu_wb
       wb2ctrl_o.clear[ex2wb_i.id] = commit;
     end
     xif_result_o.result.id    = ex2wb_i.id;
-    xif_result_o.result.data  = ex2wb_i.result; // post-increment
-    xif_result_o.result.rd    = ex2wb_i.rs1;
-    xif_result_o.result.we    = (ex2wb_i.instr == INSTR_XFIRSW || ex2wb_i.instr == INSTR_XFIRLW);
+    xif_result_o.result.data  = '0; // placeholder: what should we actually write back? this should be used for rd auto-increment
+    xif_result_o.result.rd    = '0; // placeholder: this is a bit counterintuitive -- the RD here is the write-back register in the CV32E40X register file.
+                                    // check in the specs which register should this one be, but here's one hint: it's not ex2wb_i.rd ;)
+    xif_result_o.result.we    = '0; // placeholder: set to 1 only for instructions where we actually write-back to CV32E40X register file.
   end
 
   // Forward rd and result to EX stage
