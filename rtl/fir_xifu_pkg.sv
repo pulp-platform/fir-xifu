@@ -32,6 +32,9 @@ package fir_xifu_pkg;
   // S type
   parameter logic [2:0] INSTR_XFIRSW_FUNCT3 = 3'b001;
 
+  // useful only in EFCL SS exercise
+  parameter logic [2:0] INSTR_PLACEHOLDER_FUNCT3 = 3'b000;
+
   function automatic logic [2:0] xifu_get_funct3(logic [31:0] in);
     logic [2:0] out;
     out = in[14:12];
